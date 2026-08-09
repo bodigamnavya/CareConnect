@@ -1,17 +1,33 @@
+```css
+/* =========================================
+   CARECONNECT - MAIN STYLESHEET
+========================================= */
+
+/* RESET */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+
+/* BODY */
+
 body {
     font-family: Arial, sans-serif;
     background: #f5f8fc;
     color: #1f2937;
+    min-height: 100vh;
 }
 
+
+/* =========================================
+   NAVBAR
+========================================= */
+
 .navbar {
-    height: 70px;
+    min-height: 70px;
     padding: 0 8%;
     display: flex;
     align-items: center;
@@ -35,6 +51,15 @@ body {
     color: #333;
     font-weight: 600;
 }
+
+.navbar a:hover {
+    color: #dc2626;
+}
+
+
+/* =========================================
+   HERO
+========================================= */
 
 .hero {
     min-height: 520px;
@@ -76,6 +101,7 @@ body {
     border-radius: 8px;
     text-decoration: none;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .primary {
@@ -83,11 +109,25 @@ body {
     color: white;
 }
 
+.primary:hover {
+    background: #b91c1c;
+}
+
 .secondary {
     background: white;
     color: #dc2626;
     border: 2px solid #dc2626;
 }
+
+.secondary:hover {
+    background: #dc2626;
+    color: white;
+}
+
+
+/* =========================================
+   HERO CARD
+========================================= */
 
 .hero-card {
     width: 320px;
@@ -110,6 +150,11 @@ body {
 .hero-card p {
     line-height: 1.6;
 }
+
+
+/* =========================================
+   FEATURES
+========================================= */
 
 .features {
     padding: 70px 8%;
@@ -148,6 +193,11 @@ body {
     line-height: 1.6;
 }
 
+
+/* =========================================
+   FOOTER
+========================================= */
+
 footer {
     padding: 25px;
     text-align: center;
@@ -155,44 +205,11 @@ footer {
     color: white;
 }
 
-@media (max-width: 900px) {
 
-    .hero {
-        flex-direction: column;
-        text-align: center;
-    }
+/* =========================================
+   AUTH PAGE
+========================================= */
 
-    .hero-buttons {
-        justify-content: center;
-    }
-
-    .feature-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 600px) {
-
-    .navbar {
-        padding: 0 5%;
-    }
-
-    .navbar nav {
-        gap: 10px;
-    }
-
-    .hero h1 {
-        font-size: 38px;
-    }
-
-    .feature-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .hero-card {
-        width: 100%;
-    }
-}
 .auth-container {
     min-height: 80vh;
     display: flex;
@@ -219,6 +236,9 @@ footer {
     line-height: 1.5;
 }
 
+
+/* LABELS */
+
 .auth-card label {
     display: block;
     margin-top: 18px;
@@ -226,37 +246,10 @@ footer {
     font-weight: bold;
 }
 
-.auth-card input {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #d1d5db;
-    border-radius: 7px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
 
-.auth-card button {
-    width: 100%;
-    border: none;
-    margin-top: 25px;
-    cursor: pointer;
-    font-size: 16px;
-}
+/* INPUTS */
 
-#registerMessage {
-    margin-top: 20px;
-    font-weight: bold;
-}
-
-.auth-link {
-    text-align: center;
-    margin-top: 25px !important;
-}
-
-.auth-link a {
-    color: #dc2626;
-    font-weight: bold;
-}
+.auth-card input,
 .auth-card textarea,
 .auth-card select {
     width: 100%;
@@ -268,6 +261,189 @@ footer {
     font-family: inherit;
 }
 
+.auth-card input:focus,
+.auth-card textarea:focus,
+.auth-card select:focus {
+    outline: none;
+    border-color: #dc2626;
+}
+
+
+/* TEXTAREA */
+
 .auth-card textarea {
     resize: vertical;
 }
+
+
+/* BUTTON */
+
+.auth-card button {
+    width: 100%;
+    border: none;
+    margin-top: 25px;
+    padding: 14px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    background: #dc2626;
+    color: white;
+}
+
+.auth-card button:hover {
+    background: #b91c1c;
+}
+
+
+/* PRIMARY BUTTON */
+
+.btn-primary {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #b91c1c;
+}
+
+
+/* MESSAGES */
+
+#loginMessage,
+#registerMessage,
+#medicalMessage,
+#qrMessage,
+#sosMessage {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+
+/* AUTH LINK */
+
+.auth-link {
+    text-align: center;
+    margin-top: 25px !important;
+}
+
+.auth-link a {
+    color: #dc2626;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   QR CODE
+========================================= */
+
+#qrContainer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#qrContainer img {
+    max-width: 250px;
+    width: 100%;
+    height: auto;
+}
+
+
+/* =========================================
+   SOS HISTORY
+========================================= */
+
+.sos-history-item {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.sos-history-item h3 {
+    margin-bottom: 12px;
+}
+
+.sos-history-item p {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* =========================================
+   RESPONSIVE - MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .navbar {
+        padding: 15px 5%;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .navbar nav {
+        gap: 15px;
+    }
+
+    .hero {
+        padding: 50px 5%;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-card {
+        width: 100%;
+    }
+
+    .auth-card {
+        padding: 25px;
+    }
+
+}
+```

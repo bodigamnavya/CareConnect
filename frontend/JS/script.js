@@ -1,8 +1,8 @@
+```javascript
 // =====================================================
 // CARECONNECT - MAIN SCRIPT.JS
 // =====================================================
 
-// Live Render Backend
 const API_BASE_URL = "https://careconnect-back-qf7e.onrender.com";
 
 
@@ -13,100 +13,61 @@ const API_BASE_URL = "https://careconnect-back-qf7e.onrender.com";
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
-
     registerForm.addEventListener("submit", async function (event) {
-
         event.preventDefault();
 
-        const name =
-            document.getElementById("name").value.trim();
-
-        const email =
-            document.getElementById("email").value.trim();
-
-        const password =
-            document.getElementById("password").value;
-
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
-
-        const message =
-            document.getElementById("registerMessage");
-
-        message.textContent = "";
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const message = document.getElementById("registerMessage");
 
         if (!name || !email || !password || !confirmPassword) {
-
-            message.textContent =
-                "Please fill all fields.";
-
+            message.textContent = "Please fill all fields.";
             return;
         }
 
         if (password.length < 6) {
-
-            message.textContent =
-                "Password must contain at least 6 characters.";
-
+            message.textContent = "Password must contain at least 6 characters.";
             return;
         }
 
         if (password !== confirmPassword) {
-
-            message.textContent =
-                "Passwords do not match.";
-
+            message.textContent = "Passwords do not match.";
             return;
         }
 
+        message.textContent = "Creating account...";
+
         try {
+            const response = await fetch(`${API_BASE_URL}/api/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password
+                })
+            });
 
-            message.textContent =
-                "Creating account...";
-
-            const response = await fetch(
-                `${API_BASE_URL}/api/register`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        password: password
-                    })
-                }
-            );
-
-            const data =
-                await response.json();
+            const data = await response.json();
 
             if (response.ok && data.success) {
-
-                message.textContent =
-                    "Registration successful!";
-
+                message.textContent = "Registration successful!";
                 registerForm.reset();
 
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1000);
             } else {
-
-                message.textContent =
-                    data.message ||
-                    "Registration failed.";
+                message.textContent = data.message || "Registration failed.";
             }
 
         } catch (error) {
-
-            console.error(
-                "Registration error:",
-                error
-            );
-
-            message.textContent =
-                "Unable to connect to the server.";
+            console.error("Registration error:", error);
+            message.textContent = "Unable to connect to the server.";
         }
     });
 }
@@ -116,123 +77,58 @@ if (registerForm) {
 // LOGIN
 // =====================================================
 
-const loginForm =
-    document.getElementById("loginForm");
+const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
+    loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    loginForm.addEventListener(
-        "submit",
-        async function (event) {
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const message = document.getElementById("loginMessage");
 
-            event.preventDefault();
-
-            const email =
-                document.getElementById("loginEmail")
-                    .value
-                    .trim();
-
-            const password =
-                document.getElementById("loginPassword")
-                    .value;
-
-            const message =
-                document.getElementById("loginMessage");
-
-            if (!email || !password) {
-
-                message.textContent =
-                    "Please enter email and password.";
-
-                return;
-            }
-
-            message.textContent =
-                "Logging in...";
-
-            try {
-
-                console.log(
-                    "Sending login request..."
-                );
-
-                const response = await fetch(
-                    `${API_BASE_URL}/api/login`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    }
-                );
-
-                console.log(
-                    "Login status:",
-                    response.status
-                );
-
-                const data =
-                    await response.json();
-
-                console.log(
-                    "Login response:",
-                    data
-                );
-
-                if (
-                    response.ok &&
-                    data.success
-                ) {
-
-                    // Save JWT token
-                    localStorage.setItem(
-                        "token",
-                        data.token
-                    );
-
-                    // Save user information
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify(data.user)
-                    );
-
-                    message.textContent =
-                        "Login successful!";
-
-                    // Redirect to dashboard
-                    setTimeout(function () {
-
-                        window.location.href =
-                            "dashboard.html";
-
-                    }, 500);
-
-                } else {
-
-                    message.textContent =
-                        data.message ||
-                        "Login failed.";
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Login error:",
-                    error
-                );
-
-                message.textContent =
-                    "Unable to connect to the server.";
-            }
+        if (!email || !password) {
+            message.textContent = "Please enter email and password.";
+            return;
         }
-    );
+
+        message.textContent = "Logging in...";
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            console.log("Login response:", data);
+
+            if (response.ok && data.success) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.user));
+
+                message.textContent = "Login successful!";
+
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 500);
+
+            } else {
+                message.textContent = data.message || "Login failed.";
+            }
+
+        } catch (error) {
+            console.error("Login error:", error);
+            message.textContent = "Unable to connect to the server.";
+        }
+    });
 }
 
 
@@ -240,59 +136,40 @@ if (loginForm) {
 // DASHBOARD
 // =====================================================
 
-const userName =
-    document.getElementById("userName");
+const userName = document.getElementById("userName");
+const userEmail = document.getElementById("userEmail");
+const welcomeMessage = document.getElementById("welcomeMessage");
 
-const userEmail =
-    document.getElementById("userEmail");
-
-const welcomeMessage =
-    document.getElementById("welcomeMessage");
-
-if (userName && userEmail) {
-
-    const token =
-        localStorage.getItem("token");
-
-    const userData =
-        localStorage.getItem("user");
+if (userName || userEmail || welcomeMessage) {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
 
     if (!token || !userData) {
-
-        window.location.href =
-            "login.html";
-
+        window.location.href = "login.html";
     } else {
-
         try {
+            const user = JSON.parse(userData);
 
-            const user =
-                JSON.parse(userData);
+            if (userName) {
+                userName.textContent = user.name || "";
+            }
 
-            userName.textContent =
-                user.name || "";
-
-            userEmail.textContent =
-                user.email || "";
+            if (userEmail) {
+                userEmail.textContent = user.email || "";
+            }
 
             if (welcomeMessage) {
-
                 welcomeMessage.textContent =
-                    `Hello ${user.name}! Welcome back to CareConnect.`;
+                    `Hello ${user.name || ""}! Welcome back to CareConnect.`;
             }
 
         } catch (error) {
-
-            console.error(
-                "User data error:",
-                error
-            );
+            console.error("User data error:", error);
 
             localStorage.removeItem("token");
             localStorage.removeItem("user");
 
-            window.location.href =
-                "dashboard.html";
+            window.location.href = "login.html";
         }
     }
 }
@@ -302,23 +179,15 @@ if (userName && userEmail) {
 // LOGOUT
 // =====================================================
 
-const logoutButton =
-    document.getElementById("logoutButton");
+const logoutButton = document.getElementById("logoutButton");
 
 if (logoutButton) {
+    logoutButton.addEventListener("click", function () {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
 
-    logoutButton.addEventListener(
-        "click",
-        function () {
-
-            localStorage.removeItem("token");
-
-            localStorage.removeItem("user");
-
-            window.location.href =
-                "login.html";
-        }
-    );
+        window.location.href = "login.html";
+    });
 }
 
 
@@ -330,135 +199,72 @@ const medicalProfileForm =
     document.getElementById("medicalProfileForm");
 
 if (medicalProfileForm) {
+    medicalProfileForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    medicalProfileForm.addEventListener(
-        "submit",
-        async function (event) {
+        const token = localStorage.getItem("token");
+        const message = document.getElementById("medicalMessage");
 
-            event.preventDefault();
-
-            const token =
-                localStorage.getItem("token");
-
-            const medicalMessage =
-                document.getElementById(
-                    "medicalMessage"
-                );
-
-            if (!token) {
-
-                window.location.href =
-                    "login.html";
-
-                return;
-            }
-
-            const bloodGroup =
-                document.getElementById(
-                    "bloodGroup"
-                ).value.trim();
-
-            const phone =
-                document.getElementById(
-                    "phone"
-                ).value.trim();
-
-            const allergies =
-                document.getElementById(
-                    "allergies"
-                ).value.trim();
-
-            const medications =
-                document.getElementById(
-                    "medications"
-                ).value.trim();
-
-            const conditions =
-                document.getElementById(
-                    "conditions"
-                ).value.trim();
-
-            const emergencyContact =
-                document.getElementById(
-                    "emergencyContact"
-                ).value.trim();
-
-            medicalMessage.textContent =
-                "Saving medical profile...";
-
-            try {
-
-                const response = await fetch(
-                    `${API_BASE_URL}/api/medical-profile`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                "Bearer " + token
-                        },
-
-                        body: JSON.stringify({
-
-                            blood_group:
-                                bloodGroup,
-
-                            phone:
-                                phone,
-
-                            allergies:
-                                allergies,
-
-                            medications:
-                                medications,
-
-                            conditions:
-                                conditions,
-
-                            emergency_contact:
-                                emergencyContact
-                        })
-                    }
-                );
-
-                const data =
-                    await response.json();
-
-                console.log(
-                    "Medical profile response:",
-                    data
-                );
-
-                if (
-                    response.ok &&
-                    data.success
-                ) {
-
-                    medicalMessage.textContent =
-                        "Medical profile saved successfully.";
-
-                } else {
-
-                    medicalMessage.textContent =
-                        data.message ||
-                        "Unable to save medical profile.";
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Medical profile error:",
-                    error
-                );
-
-                medicalMessage.textContent =
-                    "Unable to connect to the server.";
-            }
+        if (!token) {
+            window.location.href = "login.html";
+            return;
         }
-    );
+
+        const bloodGroup =
+            document.getElementById("bloodGroup").value.trim();
+
+        const phone =
+            document.getElementById("phone").value.trim();
+
+        const allergies =
+            document.getElementById("allergies").value.trim();
+
+        const medications =
+            document.getElementById("medications").value.trim();
+
+        const conditions =
+            document.getElementById("conditions").value.trim();
+
+        const emergencyContact =
+            document.getElementById("emergencyContact").value.trim();
+
+        message.textContent = "Saving medical profile...";
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/medical-profile`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        blood_group: bloodGroup,
+                        phone: phone,
+                        allergies: allergies,
+                        medications: medications,
+                        conditions: conditions,
+                        emergency_contact: emergencyContact
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                message.textContent =
+                    "Medical profile saved successfully.";
+            } else {
+                message.textContent =
+                    data.message || "Unable to save medical profile.";
+            }
+
+        } catch (error) {
+            console.error("Medical profile error:", error);
+            message.textContent = "Unable to connect to the server.";
+        }
+    });
 }
 
 
@@ -467,125 +273,69 @@ if (medicalProfileForm) {
 // =====================================================
 
 const generateQRButton =
-    document.getElementById(
-        "generateQRButton"
-    );
+    document.getElementById("generateQRButton");
 
 if (generateQRButton) {
+    generateQRButton.addEventListener("click", async function () {
 
-    generateQRButton.addEventListener(
-        "click",
-        async function () {
+        const token = localStorage.getItem("token");
+        const qrMessage = document.getElementById("qrMessage");
+        const qrContainer = document.getElementById("qrContainer");
 
-            const token =
-                localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
 
-            const qrMessage =
-                document.getElementById(
-                    "qrMessage"
-                );
+        qrMessage.textContent = "Generating QR code...";
+        qrContainer.innerHTML = "";
 
-            const qrContainer =
-                document.getElementById(
-                    "qrContainer"
-                );
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/generate-qr`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                }
+            );
 
-            if (!token) {
+            const data = await response.json();
 
-                window.location.href =
-                    "login.html";
-
-                return;
-            }
-
-            try {
+            if (response.ok && data.success) {
 
                 qrMessage.textContent =
-                    "Generating QR code...";
+                    data.message || "QR generated successfully.";
 
-                qrContainer.innerHTML = "";
+                if (data.qr_code) {
+                    const image = document.createElement("img");
 
-                const response = await fetch(
-                    `${API_BASE_URL}/api/generate-qr`,
-                    {
-                        method: "GET",
+                    image.src =
+                        "data:image/png;base64," + data.qr_code;
 
-                        headers: {
-                            "Authorization":
-                                "Bearer " + token
-                        }
-                    }
-                );
+                    image.alt = "CareConnect Medical QR";
+                    image.width = 250;
+                    image.height = 250;
 
-                const data =
-                    await response.json();
-
-                console.log(
-                    "QR response:",
-                    data
-                );
-
-                if (
-                    response.ok &&
-                    data.success
-                ) {
-
-                    qrMessage.textContent =
-                        data.message ||
-                        "QR generated successfully.";
-
-                    if (data.qr_code) {
-
-                        const image =
-                            document.createElement(
-                                "img"
-                            );
-
-                        image.src =
-                            "data:image/png;base64," +
-                            data.qr_code;
-
-                        image.alt =
-                            "CareConnect Medical QR";
-
-                        image.style.width =
-                            "250px";
-
-                        image.style.height =
-                            "250px";
-
-                        image.style.marginTop =
-                            "20px";
-
-                        qrContainer.appendChild(
-                            image
-                        );
-
-                    } else {
-
-                        qrMessage.textContent =
-                            "QR code was not returned by server.";
-                    }
+                    qrContainer.appendChild(image);
 
                 } else {
-
                     qrMessage.textContent =
-                        data.message ||
-                        "Unable to generate QR.";
+                        "QR code was not returned by server.";
                 }
 
-            } catch (error) {
-
-                console.error(
-                    "QR error:",
-                    error
-                );
-
+            } else {
                 qrMessage.textContent =
-                    "Unable to connect to server.";
+                    data.message || "Unable to generate QR.";
             }
+
+        } catch (error) {
+            console.error("QR error:", error);
+            qrMessage.textContent =
+                "Unable to connect to server.";
         }
-    );
+    });
 }
 
 
@@ -593,153 +343,94 @@ if (generateQRButton) {
 // EMERGENCY SOS
 // =====================================================
 
-const sosButton =
-    document.getElementById("sosButton");
+const sosButton = document.getElementById("sosButton");
 
 if (sosButton) {
+    sosButton.addEventListener("click", async function () {
 
-    sosButton.addEventListener(
-        "click",
-        async function () {
+        const token = localStorage.getItem("token");
+        const sosMessage = document.getElementById("sosMessage");
 
-            const token =
-                localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
 
-            const sosMessage =
-                document.getElementById(
-                    "sosMessage"
-                );
-
-            if (!token) {
-
-                window.location.href =
-                    "login.html";
-
-                return;
-            }
-
-            sosButton.disabled = true;
-
+        if (!navigator.geolocation) {
             sosMessage.textContent =
-                "Activating Emergency SOS...";
+                "Geolocation is not supported by this browser.";
+            return;
+        }
 
-            if (!navigator.geolocation) {
+        sosButton.disabled = true;
+        sosMessage.textContent =
+            "Activating Emergency SOS...";
 
-                sosMessage.textContent =
-                    "Geolocation is not supported by this browser.";
+        navigator.geolocation.getCurrentPosition(
+            async function (position) {
 
-                sosButton.disabled = false;
+                try {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
 
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-
-                async function (position) {
-
-                    try {
-
-                        const latitude =
-                            position.coords.latitude;
-
-                        const longitude =
-                            position.coords.longitude;
-
-                        const response =
-                            await fetch(
-                                `${API_BASE_URL}/api/sos`,
-                                {
-                                    method: "POST",
-
-                                    headers: {
-                                        "Content-Type":
-                                            "application/json",
-
-                                        "Authorization":
-                                            "Bearer " + token
-                                    },
-
-                                    body: JSON.stringify({
-                                        latitude:
-                                            latitude,
-
-                                        longitude:
-                                            longitude,
-
-                                        message:
-                                            "Emergency! I need medical assistance."
-                                    })
-                                }
-                            );
-
-                        const data =
-                            await response.json();
-
-                        console.log(
-                            "SOS response:",
-                            data
-                        );
-
-                        if (
-                            response.ok &&
-                            data.success
-                        ) {
-
-                            sosMessage.textContent =
-                                "🚨 Emergency SOS activated successfully!";
-
-                        } else {
-
-                            sosMessage.textContent =
-                                data.message ||
-                                "SOS activation failed.";
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/sos`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer " + token
+                            },
+                            body: JSON.stringify({
+                                latitude: latitude,
+                                longitude: longitude,
+                                message:
+                                    "Emergency! I need medical assistance."
+                            })
                         }
-
-                    } catch (error) {
-
-                        console.error(
-                            "SOS error:",
-                            error
-                        );
-
-                        sosMessage.textContent =
-                            "Unable to connect to server.";
-
-                    } finally {
-
-                        sosButton.disabled = false;
-                    }
-                },
-
-                function (error) {
-
-                    console.error(
-                        "Location error:",
-                        error
                     );
 
-                    if (error.code === 1) {
+                    const data = await response.json();
 
+                    if (response.ok && data.success) {
                         sosMessage.textContent =
-                            "Please allow location access.";
-
+                            "🚨 Emergency SOS activated successfully!";
                     } else {
-
                         sosMessage.textContent =
-                            "Unable to get your location.";
+                            data.message || "SOS activation failed.";
                     }
 
-                    sosButton.disabled = false;
-                },
+                } catch (error) {
+                    console.error("SOS error:", error);
 
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+                    sosMessage.textContent =
+                        "Unable to connect to server.";
                 }
-            );
-        }
-    );
+
+                sosButton.disabled = false;
+            },
+
+            function (error) {
+                console.error("Location error:", error);
+
+                if (error.code === 1) {
+                    sosMessage.textContent =
+                        "Please allow location access.";
+                } else {
+                    sosMessage.textContent =
+                        "Unable to get your location.";
+                }
+
+                sosButton.disabled = false;
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    });
 }
 
 
@@ -748,19 +439,14 @@ if (sosButton) {
 // =====================================================
 
 const historyContainer =
-    document.getElementById(
-        "historyContainer"
-    );
+    document.getElementById("historyContainer");
 
 if (historyContainer) {
 
-    const token =
-        localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (!token) {
-
-        window.location.href =
-            "login.html";
+        window.location.href = "login.html";
 
     } else {
 
@@ -770,109 +456,85 @@ if (historyContainer) {
                 "<p>Loading SOS history...</p>";
 
             try {
-
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/api/sos/history`,
-                        {
-                            method: "GET",
-
-                            headers: {
-                                "Authorization":
-                                    "Bearer " + token
-                            }
+                const response = await fetch(
+                    `${API_BASE_URL}/api/sos/history`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization": "Bearer " + token
                         }
-                    );
-
-                const data =
-                    await response.json();
-
-                console.log(
-                    "SOS history response:",
-                    data
+                    }
                 );
 
-                if (
-                    response.ok &&
-                    data.success
-                ) {
+                const data = await response.json();
+
+                if (response.ok && data.success) {
 
                     if (
                         !data.events ||
                         data.events.length === 0
                     ) {
-
                         historyContainer.innerHTML =
                             "<p>No SOS history found.</p>";
-
                         return;
                     }
 
-                    historyContainer.innerHTML =
-                        "";
+                    historyContainer.innerHTML = "";
 
-                    data.events.forEach(
-                        function (event) {
+                    data.events.forEach(function (event) {
 
-                            const item =
-                                document.createElement(
-                                    "div"
-                                );
+                        const item =
+                            document.createElement("div");
 
-                            item.className =
-                                "sos-history-item";
+                        item.className =
+                            "sos-history-item";
 
-                            const createdAt =
-                                event.created_at
-                                    ? new Date(
-                                        event.created_at
-                                    ).toLocaleString()
-                                    : "N/A";
+                        const createdAt =
+                            event.created_at
+                                ? new Date(
+                                    event.created_at
+                                ).toLocaleString()
+                                : "N/A";
 
-                            item.innerHTML = `
-                                <h3>🚨 Emergency SOS</h3>
+                        item.innerHTML = `
+                            <h3>🚨 Emergency SOS</h3>
 
-                                <p>
-                                    <strong>Status:</strong>
-                                    ${event.status || "N/A"}
-                                </p>
+                            <p>
+                                <strong>Status:</strong>
+                                ${event.status || "N/A"}
+                            </p>
 
-                                <p>
-                                    <strong>Message:</strong>
-                                    ${event.message || "N/A"}
-                                </p>
+                            <p>
+                                <strong>Message:</strong>
+                                ${event.message || "N/A"}
+                            </p>
 
-                                <p>
-                                    <strong>Latitude:</strong>
-                                    ${event.latitude ?? "N/A"}
-                                </p>
+                            <p>
+                                <strong>Latitude:</strong>
+                                ${event.latitude ?? "N/A"}
+                            </p>
 
-                                <p>
-                                    <strong>Longitude:</strong>
-                                    ${event.longitude ?? "N/A"}
-                                </p>
+                            <p>
+                                <strong>Longitude:</strong>
+                                ${event.longitude ?? "N/A"}
+                            </p>
 
-                                <p>
-                                    <strong>Date:</strong>
-                                    ${createdAt}
-                                </p>
+                            <p>
+                                <strong>Date:</strong>
+                                ${createdAt}
+                            </p>
 
-                                <hr>
-                            `;
+                            <hr>
+                        `;
 
-                            historyContainer.appendChild(
-                                item
-                            );
-                        }
-                    );
+                        historyContainer.appendChild(item);
+                    });
 
                 } else {
 
                     historyContainer.innerHTML =
-                        `<p>${
-                            data.message ||
-                            "Unable to load SOS history."
-                        }</p>`;
+                        `<p>${data.message ||
+                        "Unable to load SOS history."}</p>`;
                 }
 
             } catch (error) {
@@ -883,10 +545,11 @@ if (historyContainer) {
                 );
 
                 historyContainer.innerHTML =
-                    "Unable to connect to server.";
+                    "<p>Unable to connect to server.</p>";
             }
         }
 
         loadSOSHistory();
     }
 }
+```
