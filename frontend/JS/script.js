@@ -1,6 +1,14 @@
-// ===============================
+// =====================================================
+// CARECONNECT - MAIN SCRIPT.JS
+// =====================================================
+
+// Live Render Backend
+const API_BASE_URL = "https://careconnect-back-qf7e.onrender.com";
+
+
+// =====================================================
 // REGISTER
-// ===============================
+// =====================================================
 
 const registerForm = document.getElementById("registerForm");
 
@@ -57,7 +65,7 @@ if (registerForm) {
                 "Creating account...";
 
             const response = await fetch(
-                "http://127.0.0.1:5000/api/register",
+                `${API_BASE_URL}/api/register`,
                 {
                     method: "POST",
 
@@ -73,7 +81,8 @@ if (registerForm) {
                 }
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (response.ok && data.success) {
 
@@ -103,9 +112,9 @@ if (registerForm) {
 }
 
 
-// ===============================
+// =====================================================
 // LOGIN
-// ===============================
+// =====================================================
 
 const loginForm =
     document.getElementById("loginForm");
@@ -130,6 +139,14 @@ if (loginForm) {
             const message =
                 document.getElementById("loginMessage");
 
+            if (!email || !password) {
+
+                message.textContent =
+                    "Please enter email and password.";
+
+                return;
+            }
+
             message.textContent =
                 "Logging in...";
 
@@ -140,7 +157,7 @@ if (loginForm) {
                 );
 
                 const response = await fetch(
-                    "http://127.0.0.1:5000/api/login",
+                    `${API_BASE_URL}/api/login`,
                     {
                         method: "POST",
 
@@ -174,11 +191,13 @@ if (loginForm) {
                     data.success
                 ) {
 
+                    // Save JWT token
                     localStorage.setItem(
                         "token",
                         data.token
                     );
 
+                    // Save user information
                     localStorage.setItem(
                         "user",
                         JSON.stringify(data.user)
@@ -217,9 +236,9 @@ if (loginForm) {
 }
 
 
-// ===============================
+// =====================================================
 // DASHBOARD
-// ===============================
+// =====================================================
 
 const userName =
     document.getElementById("userName");
@@ -251,10 +270,10 @@ if (userName && userEmail) {
                 JSON.parse(userData);
 
             userName.textContent =
-                user.name;
+                user.name || "";
 
             userEmail.textContent =
-                user.email;
+                user.email || "";
 
             if (welcomeMessage) {
 
@@ -279,9 +298,9 @@ if (userName && userEmail) {
 }
 
 
-// ===============================
+// =====================================================
 // LOGOUT
-// ===============================
+// =====================================================
 
 const logoutButton =
     document.getElementById("logoutButton");
@@ -303,9 +322,9 @@ if (logoutButton) {
 }
 
 
-// ===============================
+// =====================================================
 // MEDICAL PROFILE
-// ===============================
+// =====================================================
 
 const medicalProfileForm =
     document.getElementById("medicalProfileForm");
@@ -370,7 +389,7 @@ if (medicalProfileForm) {
             try {
 
                 const response = await fetch(
-                    "http://127.0.0.1:5000/api/medical-profile",
+                    `${API_BASE_URL}/api/medical-profile`,
                     {
                         method: "POST",
 
@@ -443,9 +462,9 @@ if (medicalProfileForm) {
 }
 
 
-// ===============================
+// =====================================================
 // MEDICAL QR PASSPORT
-// ===============================
+// =====================================================
 
 const generateQRButton =
     document.getElementById(
@@ -487,7 +506,7 @@ if (generateQRButton) {
                 qrContainer.innerHTML = "";
 
                 const response = await fetch(
-                    "http://127.0.0.1:5000/api/generate-qr",
+                    `${API_BASE_URL}/api/generate-qr`,
                     {
                         method: "GET",
 
@@ -541,6 +560,11 @@ if (generateQRButton) {
                         qrContainer.appendChild(
                             image
                         );
+
+                    } else {
+
+                        qrMessage.textContent =
+                            "QR code was not returned by server.";
                     }
 
                 } else {
@@ -552,97 +576,317 @@ if (generateQRButton) {
 
             } catch (error) {
 
-    console.error("LOGIN ERROR:", error);
+                console.error(
+                    "QR error:",
+                    error
+                );
 
-    message.textContent =
-        "Login error: " + error.message;
-}
+                qrMessage.textContent =
+                    "Unable to connect to server.";
+            }
         }
     );
 }
-const sosButton = document.getElementById("sosButton");
+
+
+// =====================================================
+// EMERGENCY SOS
+// =====================================================
+
+const sosButton =
+    document.getElementById("sosButton");
 
 if (sosButton) {
 
-    sosButton.addEventListener("click", async function () {
+    sosButton.addEventListener(
+        "click",
+        async function () {
 
-        const token = localStorage.getItem("token");
-        const sosMessage = document.getElementById("sosMessage");
+            const token =
+                localStorage.getItem("token");
 
-        if (!token) {
-            window.location.href = "login.html";
-            return;
-        }
+            const sosMessage =
+                document.getElementById(
+                    "sosMessage"
+                );
 
-        sosButton.disabled = true;
-        sosMessage.textContent = "Activating Emergency SOS...";
+            if (!token) {
 
-        try {
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+            sosButton.disabled = true;
+
+            sosMessage.textContent =
+                "Activating Emergency SOS...";
+
+            if (!navigator.geolocation) {
+
+                sosMessage.textContent =
+                    "Geolocation is not supported by this browser.";
+
+                sosButton.disabled = false;
+
+                return;
+            }
 
             navigator.geolocation.getCurrentPosition(
 
                 async function (position) {
 
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
+                    try {
 
-                    const response = await fetch(
-                        "http://127.0.0.1:5000/api/sos",
-                        {
-                            method: "POST",
+                        const latitude =
+                            position.coords.latitude;
 
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": "Bearer " + token
-                            },
+                        const longitude =
+                            position.coords.longitude;
 
-                            body: JSON.stringify({
-                                latitude: latitude,
-                                longitude: longitude
-                            })
+                        const response =
+                            await fetch(
+                                `${API_BASE_URL}/api/sos`,
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Authorization":
+                                            "Bearer " + token
+                                    },
+
+                                    body: JSON.stringify({
+                                        latitude:
+                                            latitude,
+
+                                        longitude:
+                                            longitude,
+
+                                        message:
+                                            "Emergency! I need medical assistance."
+                                    })
+                                }
+                            );
+
+                        const data =
+                            await response.json();
+
+                        console.log(
+                            "SOS response:",
+                            data
+                        );
+
+                        if (
+                            response.ok &&
+                            data.success
+                        ) {
+
+                            sosMessage.textContent =
+                                "🚨 Emergency SOS activated successfully!";
+
+                        } else {
+
+                            sosMessage.textContent =
+                                data.message ||
+                                "SOS activation failed.";
                         }
-                    );
 
-                    const data = await response.json();
+                    } catch (error) {
 
-                    console.log("SOS response:", data);
-
-                    if (response.ok && data.success) {
+                        console.error(
+                            "SOS error:",
+                            error
+                        );
 
                         sosMessage.textContent =
-                            "🚨 Emergency SOS activated successfully!";
+                            "Unable to connect to server.";
+
+                    } finally {
+
+                        sosButton.disabled = false;
+                    }
+                },
+
+                function (error) {
+
+                    console.error(
+                        "Location error:",
+                        error
+                    );
+
+                    if (error.code === 1) {
+
+                        sosMessage.textContent =
+                            "Please allow location access.";
 
                     } else {
 
                         sosMessage.textContent =
-                            data.message || "SOS activation failed.";
-
+                            "Unable to get your location.";
                     }
 
                     sosButton.disabled = false;
                 },
 
-                function (error) {
-
-                    console.error("Location error:", error);
-
-                    sosMessage.textContent =
-                        "Please allow location access.";
-
-                    sosButton.disabled = false;
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                 }
             );
+        }
+    );
+}
 
-        } catch (error) {
 
-            console.error("SOS error:", error);
+// =====================================================
+// SOS HISTORY
+// =====================================================
 
-            sosMessage.textContent =
-                "Unable to connect to server.";
+const historyContainer =
+    document.getElementById(
+        "historyContainer"
+    );
 
-            sosButton.disabled = false;
+if (historyContainer) {
+
+    const token =
+        localStorage.getItem("token");
+
+    if (!token) {
+
+        window.location.href =
+            "login.html";
+
+    } else {
+
+        async function loadSOSHistory() {
+
+            historyContainer.innerHTML =
+                "<p>Loading SOS history...</p>";
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE_URL}/api/sos/history`,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Authorization":
+                                    "Bearer " + token
+                            }
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                console.log(
+                    "SOS history response:",
+                    data
+                );
+
+                if (
+                    response.ok &&
+                    data.success
+                ) {
+
+                    if (
+                        !data.events ||
+                        data.events.length === 0
+                    ) {
+
+                        historyContainer.innerHTML =
+                            "<p>No SOS history found.</p>";
+
+                        return;
+                    }
+
+                    historyContainer.innerHTML =
+                        "";
+
+                    data.events.forEach(
+                        function (event) {
+
+                            const item =
+                                document.createElement(
+                                    "div"
+                                );
+
+                            item.className =
+                                "sos-history-item";
+
+                            const createdAt =
+                                event.created_at
+                                    ? new Date(
+                                        event.created_at
+                                    ).toLocaleString()
+                                    : "N/A";
+
+                            item.innerHTML = `
+                                <h3>🚨 Emergency SOS</h3>
+
+                                <p>
+                                    <strong>Status:</strong>
+                                    ${event.status || "N/A"}
+                                </p>
+
+                                <p>
+                                    <strong>Message:</strong>
+                                    ${event.message || "N/A"}
+                                </p>
+
+                                <p>
+                                    <strong>Latitude:</strong>
+                                    ${event.latitude ?? "N/A"}
+                                </p>
+
+                                <p>
+                                    <strong>Longitude:</strong>
+                                    ${event.longitude ?? "N/A"}
+                                </p>
+
+                                <p>
+                                    <strong>Date:</strong>
+                                    ${createdAt}
+                                </p>
+
+                                <hr>
+                            `;
+
+                            historyContainer.appendChild(
+                                item
+                            );
+                        }
+                    );
+
+                } else {
+
+                    historyContainer.innerHTML =
+                        `<p>${
+                            data.message ||
+                            "Unable to load SOS history."
+                        }</p>`;
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "SOS history error:",
+                    error
+                );
+
+                historyContainer.innerHTML =
+                    "Unable to connect to server.";
+            }
         }
 
-    });
-
+        loadSOSHistory();
+    }
 }
