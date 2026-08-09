@@ -292,7 +292,7 @@ if (userName && userEmail) {
             localStorage.removeItem("user");
 
             window.location.href =
-                "login.html";
+                "dashboard.html";
         }
     }
 }
