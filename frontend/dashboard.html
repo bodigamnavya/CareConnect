@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - CareConnect</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="auth-container">
+
+        <div class="auth-card">
+
+            <h1>Welcome to CareConnect 🚑</h1>
+
+            <p id="welcomeMessage">
+                Loading your profile...
+            </p>
+
+            <hr>
+
+            <h2>My Account</h2>
+
+            <p>
+                <strong>Name:</strong>
+                <span id="userName">Loading...</span>
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                <span id="userEmail">Loading...</span>
+            </p>
+            <a href="medical-profile.html">
+    <button type="button">
+        Medical Profile
+    </button>
+    <a href="qr-passport.html">
+    <button type="button">
+        Medical QR Passport
+    </button>
+</a>
+<button id="sosButton" class="sos-button">
+    🚨 EMERGENCY SOS
+</button>
+
+<p id="sosMessage"></p>
+
+</a>
+<a href="history.html">
+    📋 SOS History
+</a>
+
+            <button id="logoutButton">
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
