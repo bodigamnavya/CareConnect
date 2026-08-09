@@ -1,80 +1,186 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Register</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Register - CareConnect</title>
 
     <link rel="stylesheet" href="css/style.css">
+
 </head>
 
 <body>
 
-    <div class="auth-container">
+    <!-- ==============================
+         NAVIGATION BAR
+    =============================== -->
 
-        <div class="auth-card">
+    <header class="navbar">
 
-            <h1>Create Account</h1>
+        <div class="logo">
+            🚑 CareConnect
+        </div>
 
-            <p>Register to create your account and start shopping.</p>
+        <nav>
 
-            <form id="registerForm">
+            <a href="index.html">
+                Home
+            </a>
 
-                <label for="name">Full Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Enter your full name"
-                    required
-                >
+            <a href="login.html">
+                Login
+            </a>
 
-                <label for="email">Email</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    required
-                >
+        </nav>
 
-                <label for="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    required
-                >
+    </header>
 
-                <label for="confirmPassword">Confirm Password</label>
-                <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Confirm your password"
-                    required
-                >
 
-                <button type="submit" class="btn-primary">
+    <!-- ==============================
+         REGISTER SECTION
+    =============================== -->
+
+    <main>
+
+        <div class="auth-container">
+
+            <div class="auth-card">
+
+                <h1>
                     Create Account
-                </button>
+                </h1>
 
-            </form>
+                <p>
+                    Register to create your CareConnect account
+                    and securely manage your medical information.
+                </p>
 
-            <div id="registerMessage"></div>
 
-            <p class="auth-link">
-                Already have an account?
-                <a href="login.html">Login</a>
-            </p>
+                <form id="registerForm">
+
+                    <!-- FULL NAME -->
+
+                    <label for="name">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Enter your full name"
+                        required
+                    >
+
+
+                    <!-- EMAIL -->
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+
+                    <!-- PASSWORD -->
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        minlength="6"
+                        required
+                    >
+
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Confirm your password"
+                        minlength="6"
+                        required
+                    >
+
+
+                    <!-- REGISTER BUTTON -->
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <!-- REGISTER MESSAGE -->
+
+                <div id="registerMessage"></div>
+
+
+                <!-- LOGIN LINK -->
+
+                <p class="auth-link">
+
+                    Already have an account?
+
+                    <a href="login.html">
+                        Login
+                    </a>
+
+                </p>
+
+            </div>
 
         </div>
 
-    </div>
+    </main>
+
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
+
+    <footer>
+
+        <p>
+            © 2026 CareConnect.
+            Emergency Medical Safety Platform.
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
 
     <script src="js/script.js"></script>
 
 </body>
+
 </html>
+```

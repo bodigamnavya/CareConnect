@@ -1,48 +1,128 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Medical QR Passport - CareConnect</title>
 
     <link rel="stylesheet" href="css/style.css">
+
 </head>
 
 <body>
 
-    <div class="auth-container">
+    <!-- ==============================
+         NAVIGATION BAR
+    =============================== -->
 
-        <div class="auth-card">
+    <header class="navbar">
 
-            <h1>Medical QR Passport 🚑</h1>
+        <div class="logo">
+            🚑 CareConnect
+        </div>
 
-            <p>
-                Generate a QR code containing your CareConnect
-                medical profile.
-            </p>
+        <nav>
 
-            <button id="generateQRButton">
-                Generate Medical QR
-            </button>
+            <a href="index.html">
+                Home
+            </a>
 
-            <div id="qrMessage"></div>
+            <a href="dashboard.html">
+                Dashboard
+            </a>
 
-            <div id="qrContainer"></div>
+            <a href="history.html">
+                History
+            </a>
 
-            <p class="auth-link">
-                <a href="dashboard.html">
-                    ← Back to Dashboard
-                </a>
-            </p>
+        </nav>
+
+    </header>
+
+
+    <!-- ==============================
+         QR PASSPORT SECTION
+    =============================== -->
+
+    <main>
+
+        <div class="auth-container">
+
+            <div class="auth-card">
+
+                <h1>
+                    Medical QR Passport 🚑
+                </h1>
+
+                <p>
+                    Generate a secure QR code containing
+                    your CareConnect medical profile.
+                </p>
+
+
+                <!-- GENERATE QR BUTTON -->
+
+                <button
+                    type="button"
+                    id="generateQRButton"
+                    class="btn-primary"
+                >
+                    Generate Medical QR
+                </button>
+
+
+                <!-- QR MESSAGE -->
+
+                <div id="qrMessage"></div>
+
+
+                <!-- QR CODE -->
+
+                <div id="qrContainer"></div>
+
+
+                <!-- BACK TO DASHBOARD -->
+
+                <p class="auth-link">
+
+                    <a href="dashboard.html">
+                        ← Back to Dashboard
+                    </a>
+
+                </p>
+
+            </div>
 
         </div>
 
-    </div>
+    </main>
+
+
+    <!-- ==============================
+         FOOTER
+    =============================== -->
+
+    <footer>
+
+        <p>
+            © 2026 CareConnect.
+            Emergency Medical Safety Platform.
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
 
     <script src="js/script.js"></script>
 
 </body>
 
 </html>
+```
