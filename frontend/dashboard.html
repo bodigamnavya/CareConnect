@@ -12,62 +12,136 @@
 
 <body>
 
-    <div class="auth-container">
+<header class="navbar">
 
-        <div class="auth-card">
+    <div class="logo">
+        🚑 CareConnect
+    </div>
 
-            <h1>Welcome to CareConnect 🚑</h1>
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="medical-profile.html">Medical Profile</a>
+        <a href="qr-passport.html">Medical QR</a>
+        <a href="sos-history.html">SOS History</a>
+        <a href="#" id="logoutButton">Logout</a>
+    </nav>
 
-            <p id="welcomeMessage">
-                Loading your profile...
-            </p>
+</header>
 
-            <hr>
+<main>
 
-            <h2>My Account</h2>
+    <section class="features dashboard">
 
-            <p>
-                <strong>Name:</strong>
-                <span id="userName">Loading...</span>
-            </p>
+        <h1 id="welcomeMessage">
+            Welcome to CareConnect
+        </h1>
 
-            <p>
-                <strong>Email:</strong>
-                <span id="userEmail">Loading...</span>
-            </p>
-            
-            <a href="medical-profile.html">
-    <button type="button">
-        Medical Profile
-    </button>
+        <p>
+            Your emergency medical safety dashboard.
+        </p>
 
-    <a href="qr-passport.html">
-    <button type="button">
-        Medical QR Passport
-    </button>
-</a>
+        <div class="feature-grid">
 
-<button id="sosButton" class="sos-button">
-    🚨 EMERGENCY SOS
-</button>
+            <div class="feature-card">
 
-<p id="sosMessage"></p>
+                <div class="feature-icon">👤</div>
 
-</a>
-<a href="history.html">
-    📋 SOS History
-</a>
+                <h3>User Information</h3>
 
-            <button id="logoutButton">
-                Logout
-            </button>
+                <p>
+                    Name:
+                    <strong id="userName"></strong>
+                </p>
+
+                <p>
+                    Email:
+                    <strong id="userEmail"></strong>
+                </p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">🏥</div>
+
+                <h3>Medical Profile</h3>
+
+                <p>
+                    Manage your medical information.
+                </p>
+
+                <a href="medical-profile.html"
+                   class="btn primary">
+                    Open Profile
+                </a>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">📱</div>
+
+                <h3>Medical QR Passport</h3>
+
+                <p>
+                    Generate your emergency medical QR code.
+                </p>
+
+                <a href="qr-passport.html"
+                   class="btn primary">
+                    Generate QR
+                </a>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">🚨</div>
+
+                <h3>Emergency SOS</h3>
+
+                <p>
+                    Send an emergency alert with your location.
+                </p>
+
+                <button id="sosButton" class="btn primary">
+                    Emergency SOS
+                </button>
+
+                <p id="sosMessage"></p>
+
+            </div>
+
+            <div class="feature-card">
+
+                <div class="feature-icon">📋</div>
+
+                <h3>SOS History</h3>
+
+                <p>
+                    View your previous emergency alerts.
+                </p>
+
+                <a href="sos-history.html"
+                   class="btn primary">
+                    View History
+                </a>
+
+            </div>
 
         </div>
 
-    </div>
+    </section>
 
-    <script src="js/script.js"></script>
+</main>
+
+<footer>
+    <p>
+        © 2026 CareConnect. Emergency Medical Safety Platform.
+    </p>
+</footer>
+
+<script src="js/script.js"></script>
 
 </body>
-
 </html>

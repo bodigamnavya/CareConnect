@@ -1,142 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login - CareConnect</title>
 
     <link rel="stylesheet" href="css/style.css">
-
 </head>
 
 <body>
 
-    <!-- NAVIGATION -->
+<header class="navbar">
 
-    <header class="navbar">
+    <div class="logo">
+        🚑 CareConnect
+    </div>
 
-        <div class="logo">
-            🚑 CareConnect
-        </div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="register.html">Register</a>
+    </nav>
 
-        <nav>
+</header>
 
-            <a href="index.html">
-                Home
-            </a>
+<main>
 
-            <a href="register.html">
-                Register
-            </a>
+    <div class="auth-container">
 
-        </nav>
+        <div class="auth-card">
 
-    </header>
+            <h1>Welcome Back</h1>
 
+            <p>
+                Login to your CareConnect account to access
+                your medical information securely.
+            </p>
 
-    <!-- LOGIN -->
+            <form id="loginForm">
 
-    <main>
+                <label for="loginEmail">
+                    Email
+                </label>
 
-        <div class="auth-container">
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Enter your email"
+                    required
+                >
 
-            <div class="auth-card">
+                <label for="loginPassword">
+                    Password
+                </label>
 
-                <h1>Welcome Back</h1>
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter your password"
+                    required
+                >
 
-                <p>
-                    Login to your CareConnect account to access
-                    your medical information securely.
-                </p>
+                <button type="submit">
+                    Login
+                </button>
 
+            </form>
 
-                <form id="loginForm">
+            <div id="loginMessage"></div>
 
-                    <label for="loginEmail">
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="loginEmail"
-                        name="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required
-                    >
-
-
-                    <label for="loginPassword">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="loginPassword"
-                        name="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
-
-
-                    <button
-                        type="submit"
-                        class="btn-primary"
-                    >
-                        Login
-                    </button>
-
-                </form>
-
-
-                <!-- LOGIN RESULT -->
-
-                <div id="loginMessage"></div>
-
-
-                <!-- REGISTER -->
-
-                <p class="auth-link">
-
-                    Don't have an account?
-
-                    <a href="register.html">
-                        Create Account
-                    </a>
-
-                </p>
-
-            </div>
+            <p class="auth-link">
+                Don't have an account?
+                <a href="register.html">
+                    Create Account
+                </a>
+            </p>
 
         </div>
 
-    </main>
+    </div>
 
+</main>
 
-    <!-- FOOTER -->
+<footer>
+    <p>© 2026 CareConnect.</p>
+</footer>
 
-    <footer>
-
-        <p>
-            © 2026 CareConnect.
-            Emergency Medical Safety Platform.
-        </p>
-
-    </footer>
-
-
-    <!-- IMPORTANT:
-         Folder is JS, not js -->
-
-    <script src="JS/script.js"></script>
+<script src="js/script.js"></script>
 
 </body>
-
 </html>

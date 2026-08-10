@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Medical QR Passport - CareConnect</title>
+    <title>SOS History - CareConnect</title>
 
     <link rel="stylesheet" href="css/style.css">
 
@@ -32,8 +32,8 @@
             Medical Profile
         </a>
 
-        <a href="sos-history.html">
-            SOS History
+        <a href="qr-passport.html">
+            Medical QR
         </a>
 
         <a href="#" id="logoutButton">
@@ -47,44 +47,35 @@
 
 <main>
 
-    <div class="auth-container">
+    <section class="features">
 
-        <div class="auth-card">
+        <h1>
+            Emergency SOS History 🚨
+        </h1>
 
-            <h1>
-                Medical QR Passport 📱
-            </h1>
+        <p>
+            View your previous emergency SOS alerts.
+        </p>
+
+
+        <div id="historyContainer">
 
             <p>
-                Generate a QR code containing your
-                CareConnect medical profile.
-            </p>
-
-
-            <button id="generateQRButton">
-
-                Generate Medical QR
-
-            </button>
-
-
-            <div id="qrMessage"></div>
-
-
-            <div id="qrContainer"></div>
-
-
-            <p class="auth-link">
-
-                <a href="dashboard.html">
-                    ← Back to Dashboard
-                </a>
-
+                Loading SOS history...
             </p>
 
         </div>
 
-    </div>
+
+        <p class="auth-link">
+
+            <a href="dashboard.html">
+                ← Back to Dashboard
+            </a>
+
+        </p>
+
+    </section>
 
 </main>
 
