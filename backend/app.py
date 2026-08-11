@@ -13,7 +13,10 @@ load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(app, resources={r"/": {"origins": ""}})
+
+
+
 app.register_blueprint(auth)
 app.register_blueprint(medical)
 app.register_blueprint(sos)

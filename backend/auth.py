@@ -29,87 +29,108 @@ users_collection = db["users"]
 # Blueprint
 auth = Blueprint("auth", __name__)
 
-
-# ===============================
-# REGISTER
-# ===============================
-
 @auth.route("/api/register", methods=["POST"])
 def register():
 
-    data = request.get_json()
+    try:
 
-    if not data:
+        data = request.get_json(silent=True)
+
+        if not data:
+            return jsonify({
+                "success": False,
+                "message": "No data received"
+            }), 400
+
+        name = str(data.get("name", "")).strip()
+        email = str(data.get("email", "")).strip().lower()
+        password = str(data.get("password", ""))
+
+        # -----------------------------
+        # VALIDATION
+        # -----------------------------
+
+        if not name:
+            return jsonify({
+                "success": False,
+                "message": "Name is required"
+            }), 400
+
+        if not email:
+            return jsonify({
+                "success": False,
+                "message": "Email is required"
+            }), 400
+
+        if not password:
+            return jsonify({
+                "success": False,
+                "message": "Password is required"
+            }), 400
+
+        if len(password) < 6:
+            return jsonify({
+                "success": False,
+                "message": "Password must contain at least 6 characters"
+            }), 400
+
+        # -----------------------------
+        # CHECK EXISTING USER
+        # -----------------------------
+
+        existing_user = users_collection.find_one({
+            "email": email
+        })
+
+        if existing_user:
+            return jsonify({
+                "success": False,
+                "message": "Email already registered"
+            }), 409
+
+        # -----------------------------
+        # HASH PASSWORD
+        # -----------------------------
+
+        password_hash = bcrypt.hashpw(
+            password.encode("utf-8"),
+            bcrypt.gensalt()
+        ).decode("utf-8")
+
+        # -----------------------------
+        # CREATE USER
+        # -----------------------------
+
+        user = {
+            "name": name,
+            "email": email,
+            "password_hash": password_hash,
+            "created_at": datetime.utcnow()
+        }
+
+        # -----------------------------
+        # SAVE TO MONGODB
+        # -----------------------------
+
+        result = users_collection.insert_one(user)
+
+        print("USER CREATED:", email)
+
+        return jsonify({
+            "success": True,
+            "message": "Registration successful",
+            "user_id": str(result.inserted_id)
+        }), 201
+
+    except Exception as error:
+
+        print("REGISTER ERROR:", repr(error))
+
         return jsonify({
             "success": False,
-            "message": "No data received"
-        }), 400
-
-    name = data.get("name", "").strip()
-    email = data.get("email", "").strip().lower()
-    password = data.get("password", "")
-
-    # Validate name
-    if not name:
-        return jsonify({
-            "success": False,
-            "message": "Name is required"
-        }), 400
-
-    # Validate email
-    if not email:
-        return jsonify({
-            "success": False,
-            "message": "Email is required"
-        }), 400
-
-    # Validate password
-    if not password:
-        return jsonify({
-            "success": False,
-            "message": "Password is required"
-        }), 400
-
-    if len(password) < 6:
-        return jsonify({
-            "success": False,
-            "message": "Password must contain at least 6 characters"
-        }), 400
-
-    # Check existing user
-    existing_user = users_collection.find_one({
-        "email": email
-    })
-
-    if existing_user:
-        return jsonify({
-            "success": False,
-            "message": "Email already registered"
-        }), 409
-
-    # Hash password
-    password_hash = bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
-
-    # Create user
-    user = {
-        "name": name,
-        "email": email,
-        "password_hash": password_hash,
-        "created_at": datetime.utcnow()
-    }
-
-    # Save to MongoDB
-    result = users_collection.insert_one(user)
-
-    return jsonify({
-        "success": True,
-        "message": "Registration successful",
-        "user_id": str(result.inserted_id)
-    }), 201
-
+            "message": "Registration failed",
+            "error": str(error)
+        }), 500
 
 # ===============================
 # LOGIN
