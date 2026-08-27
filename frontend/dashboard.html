@@ -1,147 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Dashboard - CareConnect</title>
-
+    <title>Personal Health Dashboard - CareConnect</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
-
 <body>
 
 <header class="navbar">
-
     <div class="logo">
-        🚑 CareConnect
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
     </div>
-
-    <nav>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="medical-profile.html">Medical Profile</a>
-        <a href="qr-passport.html">Medical QR</a>
-        <a href="sos-history.html">SOS History</a>
-        <a href="#" id="logoutButton">Logout</a>
+    <nav class="nav-links">
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="scan.html">Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="symptom-checker.html">Symptoms</a>
+        <a href="report-explainer.html">Reports</a>
+        <a href="health-records.html">Records</a>
+        <a href="health-summary.html">Summary</a>
+        <a href="history.html">History</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
     </nav>
-
 </header>
 
-<main>
+<main class="container">
+    <!-- DASHBOARD HEADER -->
+    <div class="dashboard-header">
+        <div>
+            <h1 class="welcome-title" id="userGreeting">Welcome back</h1>
+            <p class="welcome-subtitle">Here is your continuous AI-assisted health overview.</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="scan.html" class="btn btn-primary"><span>🔬</span> Start New Scan</a>
+            <a href="ai-assistant.html" class="btn btn-secondary"><span>💬</span> Consult AI</a>
+        </div>
+    </div>
 
-    <section class="features dashboard">
-
-        <h1 id="welcomeMessage">
-            Welcome to CareConnect
-        </h1>
-
-        <p>
-            Your emergency medical safety dashboard.
-        </p>
-
-        <div class="feature-grid">
-
-            <div class="feature-card">
-
-                <div class="feature-icon">👤</div>
-
-                <h3>User Information</h3>
-
-                <p>
-                    Name:
-                    <strong id="userName"></strong>
-                </p>
-
-                <p>
-                    Email:
-                    <strong id="userEmail"></strong>
-                </p>
-
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🔬</div>
+            <div class="stat-info">
+                <h3 id="statTotalScans">0</h3>
+                <p>Total Scans Performed</p>
             </div>
-
-            <div class="feature-card">
-
-                <div class="feature-icon">🏥</div>
-
-                <h3>Medical Profile</h3>
-
-                <p>
-                    Manage your medical information.
-                </p>
-
-                <a href="medical-profile.html"
-                   class="btn primary">
-                    Open Profile
-                </a>
-
-            </div>
-
-            <div class="feature-card">
-
-                <div class="feature-icon">📱</div>
-
-                <h3>Medical QR Passport</h3>
-
-                <p>
-                    Generate your emergency medical QR code.
-                </p>
-
-                <a href="qr-passport.html"
-                   class="btn primary">
-                    Generate QR
-                </a>
-
-            </div>
-
-            <div class="feature-card">
-
-                <div class="feature-icon">🚨</div>
-
-                <h3>Emergency SOS</h3>
-
-                <p>
-                    Send an emergency alert with your location.
-                </p>
-
-                <button id="sosButton" class="btn primary">
-                    Emergency SOS
-                </button>
-
-                <p id="sosMessage"></p>
-
-            </div>
-
-            <div class="feature-card">
-
-                <div class="feature-icon">📋</div>
-
-                <h3>SOS History</h3>
-
-                <p>
-                    View your previous emergency alerts.
-                </p>
-
-                <a href="sos-history.html"
-                   class="btn primary">
-                    View History
-                </a>
-
-            </div>
-
         </div>
 
-    </section>
+        <div class="stat-card">
+            <div class="stat-icon green">📋</div>
+            <div class="stat-info">
+                <h3 id="statHealthRecords">0</h3>
+                <p>Saved Health Records</p>
+            </div>
+        </div>
 
+        <div class="stat-card">
+            <div class="stat-icon amber">📄</div>
+            <div class="stat-info">
+                <h3 id="statReports">0</h3>
+                <p>Clinical Reports</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">🎯</div>
+            <div class="stat-info">
+                <h3 id="statRecentScan" style="font-size: 16px;">None</h3>
+                <p>Latest AI Scan Result</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="section-heading">
+        <h3><span>⚡</span> Quick Health Actions</h3>
+    </div>
+    <div class="actions-grid">
+        <div class="action-card">
+            <div>
+                <div class="action-card-header">
+                    <span class="action-card-icon">🔬</span>
+                    <h4 class="action-card-title">Medical Image Scanner</h4>
+                </div>
+                <p class="action-card-desc">Upload or capture Chest X-Rays, Skin Lesions, or Retinal scans for instant AI analysis.</p>
+            </div>
+            <a href="scan.html" class="btn btn-primary btn-sm">Start Scan</a>
+        </div>
+
+        <div class="action-card">
+            <div>
+                <div class="action-card-header">
+                    <span class="action-card-icon">💬</span>
+                    <h4 class="action-card-title">AI Health Assistant</h4>
+                </div>
+                <p class="action-card-desc">Ask questions on medications, precautions, physiology, and general wellness.</p>
+            </div>
+            <a href="ai-assistant.html" class="btn btn-secondary btn-sm">Ask AI</a>
+        </div>
+
+        <div class="action-card">
+            <div>
+                <div class="action-card-header">
+                    <span class="action-card-icon">🩺</span>
+                    <h4 class="action-card-title">Check Symptoms</h4>
+                </div>
+                <p class="action-card-desc">Evaluate multiple symptoms to determine clinical risk triage and self-care tips.</p>
+            </div>
+            <a href="symptom-checker.html" class="btn btn-secondary btn-sm">Check Symptoms</a>
+        </div>
+
+        <div class="action-card">
+            <div>
+                <div class="action-card-header">
+                    <span class="action-card-icon">📄</span>
+                    <h4 class="action-card-title">Explain Medical Report</h4>
+                </div>
+                <p class="action-card-desc">Translate complex lab tests and pathology documents into plain English.</p>
+            </div>
+            <a href="report-explainer.html" class="btn btn-secondary btn-sm">Explain Report</a>
+        </div>
+
+        <div class="action-card">
+            <div>
+                <div class="action-card-header">
+                    <span class="action-card-icon">✨</span>
+                    <h4 class="action-card-title">AI Health Summary</h4>
+                </div>
+                <p class="action-card-desc">Synthesize your personal medical records and recent scans into one comprehensive overview.</p>
+            </div>
+            <a href="health-summary.html" class="btn btn-secondary btn-sm">Generate Summary</a>
+        </div>
+
+        <div class="action-card">
+            <div>
+                <div class="action-card-header">
+                    <span class="action-card-icon">📜</span>
+                    <h4 class="action-card-title">Scan History</h4>
+                </div>
+                <p class="action-card-desc">Review and manage past diagnostic scan results and download reports.</p>
+            </div>
+            <a href="history.html" class="btn btn-secondary btn-sm">View History</a>
+        </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="activity-card">
+        <div class="section-heading">
+            <h3><span>🕒</span> Recent Health Activity</h3>
+        </div>
+        <div class="activity-list" id="activityList">
+            <p style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px;">
+                <span class="spinner"></span> Loading your recent activity...
+            </p>
+        </div>
+    </div>
+
+    <!-- MEDICAL DISCLAIMER -->
+    <div class="disclaimer-banner">
+        <span class="icon">ℹ️</span>
+        <div><strong>Important Notice:</strong> CareConnect AI is an informational assistant designed to supplement your clinical care, not replace physician diagnosis or emergency intervention.</div>
+    </div>
 </main>
 
 <footer>
-    <p>
-        © 2026 CareConnect. Emergency Medical Safety Platform.
-    </p>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
 </footer>
 
-<script src="js/script.js"></script>
-
+<script src="js/config.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>

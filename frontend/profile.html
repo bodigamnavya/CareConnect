@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html">Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="health-records.html">Records</a>
+        <a href="profile.html" class="active">Profile</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div style="margin-bottom: 24px;">
+        <span class="badge badge-primary">ACCOUNT & SAFETY</span>
+        <h1 style="font-size: 32px; margin-top: 6px;">Profile & Emergency Contacts</h1>
+        <p style="color: var(--text-muted);">Manage your personal details, blood group, and emergency responder contact numbers.</p>
+    </div>
+
+    <div class="card" style="max-width: 700px;">
+        <form id="profileForm">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="profileName">Full Name</label>
+                    <input type="text" id="profileName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="profileEmail">Email Address (Read-only)</label>
+                    <input type="email" id="profileEmail" class="form-control" readonly style="opacity: 0.7; cursor: not-allowed;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="profilePhone">Personal Phone</label>
+                    <input type="tel" id="profilePhone" class="form-control" placeholder="+1 (555) 000-0000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="profileBloodGroup">Blood Group</label>
+                    <select id="profileBloodGroup" class="form-control">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 10px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; margin-bottom: 14px; color: var(--danger);"><span>🚨</span> Emergency Contact Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label" for="profileEmergencyContact">Emergency Contact Name & Relation</label>
+                        <input type="text" id="profileEmergencyContact" class="form-control" placeholder="e.g. John Doe (Spouse)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="profileEmergencyPhone">Emergency Phone Number</label>
+                        <input type="tel" id="profileEmergencyPhone" class="form-control" placeholder="+1 (555) 911-0000">
+                    </div>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; margin-bottom: 14px;"><span>🔒</span> Security & Password</h3>
+                <div class="form-group">
+                    <label class="form-label" for="profileNewPassword">New Password (leave empty to keep current)</label>
+                    <input type="password" id="profileNewPassword" class="form-control" placeholder="Minimum 6 characters" minlength="6">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
+        </form>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

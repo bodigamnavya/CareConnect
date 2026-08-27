@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Scan Analysis Result - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/scan.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html">New Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="history.html">History</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <!-- RESULT HEADER BANNER -->
+    <div class="result-header-card">
+        <div class="result-title-group">
+            <span class="badge badge-primary" id="resultScanType">Medical Scan</span>
+            <h1 id="resultTitle" style="margin-top: 8px;">Analyzing Image...</h1>
+            <span style="font-size: 13px; color: var(--text-dim);">Scan ID: <strong id="resultScanId">...</strong></span>
+        </div>
+        <div class="confidence-badge" id="resultConfidence">--% Confidence</div>
+    </div>
+
+    <!-- MAIN RESULT DETAILS GRID -->
+    <div class="result-detail-grid">
+        <!-- IMAGE PREVIEW CARD -->
+        <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000;">
+            <img id="resultImage" alt="Scanned Medical Image" style="max-width: 100%; max-height: 380px; object-fit: contain; border-radius: var(--radius-md);">
+        </div>
+
+        <!-- CLINICAL FINDINGS CARD -->
+        <div class="card">
+            <div class="result-section">
+                <h4><span>🔬</span> AI Detailed Visual Explanation</h4>
+                <p id="resultExplanation">Loading findings...</p>
+            </div>
+
+            <div class="result-section">
+                <h4><span>🩺</span> Possible Meaning & Clinical Indications</h4>
+                <p id="resultPossibleMeaning">Evaluating indications...</p>
+            </div>
+
+            <div class="result-section">
+                <h4><span>💡</span> Recommended Next Steps & Guidance</h4>
+                <p id="resultRecommendation">Compiling guidance...</p>
+            </div>
+
+            <div class="result-section">
+                <h4><span>⚠️</span> When to Seek In-Person Medical Attention</h4>
+                <p id="resultWarningSigns" style="color: #FCA5A5;">Checking emergency signs...</p>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-primary" id="downloadReportBtn">
+                    <span>📄</span> Download Report
+                </button>
+                <button type="button" class="btn btn-secondary" id="askAiBtn">
+                    <span>💬</span> Ask AI Follow-Up
+                </button>
+                <a href="scan.html" class="btn btn-secondary">
+                    <span>🔄</span> Scan Another Image
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANDATORY MEDICAL DISCLAIMER -->
+    <div class="disclaimer-banner">
+        <span class="icon">ℹ️</span>
+        <div>
+            <strong>Medical Notice:</strong> <span id="resultDisclaimer">This AI result is for preliminary informational assistance only and is not a medical diagnosis. Always consult a licensed healthcare practitioner.</span>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/result.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

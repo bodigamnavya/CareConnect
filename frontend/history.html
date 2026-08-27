@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan History - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/records.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html">New Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="history.html" class="active">History</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <span class="badge badge-primary">ARCHIVED SCANS</span>
+            <h1 style="font-size: 32px; margin-top: 6px;">Your Medical Scan History</h1>
+            <p style="color: var(--text-muted);">Access, search, and manage all your historical AI scan results securely.</p>
+        </div>
+        <a href="scan.html" class="btn btn-primary"><span>🔬</span> New Scan</a>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="card" style="margin-bottom: 28px; padding: 16px 20px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <input type="text" id="historySearch" class="form-control" placeholder="Search by findings, result title..." style="flex: 2; min-width: 220px;">
+            <select id="historyTypeFilter" class="form-control" style="flex: 1; min-width: 180px;">
+                <option value="all">All Scan Types</option>
+                <option value="Chest X-Ray">Chest X-Ray</option>
+                <option value="Skin Lesion">Skin Lesion</option>
+                <option value="Retinal / Eye">Retinal / Eye</option>
+                <option value="General Medical Scan">General Medical Scan</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="historyEmptyState" class="card" style="display: none; text-align: center; padding: 60px 20px;">
+        <span style="font-size: 48px; margin-bottom: 16px; display: inline-block;">📁</span>
+        <h3 style="margin-bottom: 8px;">No Scan Records Found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">You have not uploaded any medical scans yet or no scans match your search filter.</p>
+        <a href="scan.html" class="btn btn-primary">Start Your First Scan</a>
+    </div>
+
+    <!-- GRID -->
+    <div class="records-grid" id="historyGrid"></div>
+</main>
+
+<footer>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/history.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

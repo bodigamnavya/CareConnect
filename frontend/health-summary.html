@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Summary - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/records.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html">Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="health-records.html">Records</a>
+        <a href="health-summary.html" class="active">Summary</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <span class="badge badge-primary">AI COMPILATION</span>
+            <h1 style="font-size: 32px; margin-top: 6px;">Personalized AI Health Summary</h1>
+            <p style="color: var(--text-muted);">A holistic clinical overview synthesized from your authenticated scans, health records, and reports.</p>
+        </div>
+        <button type="button" class="btn btn-secondary" id="refreshSummaryBtn"><span>🔄</span> Refresh Summary</button>
+    </div>
+
+    <!-- SUMMARY CARD -->
+    <div class="card" style="border-top: 4px solid var(--primary); margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; background: rgba(15, 23, 42, 0.6); padding: 18px; border-radius: var(--radius-md);">
+            <div><strong>Patient:</strong> <span id="summaryPatientName">...</span></div>
+            <div><strong>Blood Group:</strong> <span id="summaryBloodGroup">...</span></div>
+            <div><strong>Emergency Contact:</strong> <span id="summaryEmergencyContact">...</span></div>
+            <div><strong>Total Scans:</strong> <span id="summaryScansCount" style="color: var(--primary); font-weight: 700;">0</span></div>
+            <div><strong>Health Records:</strong> <span id="summaryRecordsCount" style="color: var(--accent); font-weight: 700;">0</span></div>
+        </div>
+
+        <div class="result-section">
+            <h4><span>📋</span> Clinical Overview & Recent Activity</h4>
+            <p id="summaryOverviewText" style="font-size: 15px; line-height: 1.7; color: var(--text-main);">Loading your personalized clinical summary...</p>
+        </div>
+
+        <div class="result-detail-grid" style="margin-top: 24px;">
+            <div class="result-section">
+                <h4><span>🚨</span> Recorded Allergies</h4>
+                <div id="summaryAllergiesList">None recorded</div>
+            </div>
+
+            <div class="result-section">
+                <h4><span>🩺</span> Active Conditions</h4>
+                <div id="summaryConditionsList">None recorded</div>
+            </div>
+        </div>
+
+        <div class="result-section" style="margin-top: 14px;">
+            <h4><span>💊</span> Current Medications</h4>
+            <div id="summaryMedicationsList">None recorded</div>
+        </div>
+
+        <div class="result-section" style="margin-top: 24px;">
+            <h4><span>💡</span> Evidence-Informed Guidance Recommendations</h4>
+            <ul id="summaryGuidanceList" style="padding-left: 20px; color: var(--text-muted); font-size: 14px;"></ul>
+        </div>
+
+        <div class="disclaimer-banner" style="margin-top: 24px;">
+            <span class="icon">ℹ️</span>
+            <div><strong>Important:</strong> AI summaries aggregate your self-reported data and CareConnect scan activity. This summary does not constitute an independent clinical diagnosis.</div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/summary.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

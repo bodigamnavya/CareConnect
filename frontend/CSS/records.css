@@ -1,0 +1,81 @@
+/* HEALTH RECORDS & REPORT EXPLAINER STYLING */
+.records-filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.category-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.category-tag {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.category-tag:hover,
+.category-tag.active {
+    background: rgba(6, 182, 212, 0.15);
+    border-color: var(--primary);
+    color: #38BDF8;
+}
+
+.records-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.record-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: var(--transition);
+}
+
+.record-card:hover {
+    border-color: var(--border-glow);
+    transform: translateY(-2px);
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.record-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.record-details {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+}
+
+.record-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 14px;
+}

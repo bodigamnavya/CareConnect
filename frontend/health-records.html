@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Health Records - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/records.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html">Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="health-records.html" class="active">Records</a>
+        <a href="health-summary.html">Summary</a>
+        <a href="profile.html">Profile</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <span class="badge badge-primary">PERSONAL HEALTH VAULT</span>
+            <h1 style="font-size: 32px; margin-top: 6px;">Your Health Records & Medical Data</h1>
+            <p style="color: var(--text-muted);">Manage your personal allergies, active medications, chronic conditions, and emergency notes.</p>
+        </div>
+    </div>
+
+    <!-- ADD RECORD CARD -->
+    <div class="card" style="margin-bottom: 30px;">
+        <h3 style="margin-bottom: 16px;"><span>➕</span> Add New Health Record</h3>
+        <form id="recordForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="recordCategory">Category</label>
+                    <select id="recordCategory" class="form-control">
+                        <option value="Allergy">Allergy (Medication/Food)</option>
+                        <option value="Condition">Chronic Condition</option>
+                        <option value="Medication">Active Medication</option>
+                        <option value="History">Past Surgery / History</option>
+                        <option value="Note">General Clinical Note</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="recordTitle">Title / Name</label>
+                    <input type="text" id="recordTitle" class="form-control" placeholder="e.g. Penicillin Allergy, Asthma, Metformin" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="recordSeverity">Severity / Frequency</label>
+                    <select id="recordSeverity" class="form-control">
+                        <option value="Mild">Mild</option>
+                        <option value="Moderate" selected>Moderate</option>
+                        <option value="Severe">Severe</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="recordDate">Date of Onset / Start</label>
+                    <input type="date" id="recordDate" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="recordDetails">Details, Dosage, or Special Notes</label>
+                <input type="text" id="recordDetails" class="form-control" placeholder="e.g. Causes hives; Take 500mg twice daily with meals...">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Record</button>
+        </form>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="records-filter-bar">
+        <div class="category-tags">
+            <button class="category-tag active" data-category="all">All Records</button>
+            <button class="category-tag" data-category="Allergy">Allergies</button>
+            <button class="category-tag" data-category="Condition">Conditions</button>
+            <button class="category-tag" data-category="Medication">Medications</button>
+            <button class="category-tag" data-category="History">History & Notes</button>
+        </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="recordsEmptyState" class="card" style="display: none; text-align: center; padding: 40px 20px;">
+        <p style="color: var(--text-muted);">No health records found in this category.</p>
+    </div>
+
+    <!-- RECORDS GRID -->
+    <div class="records-grid" id="recordsGrid"></div>
+</main>
+
+<footer>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/records.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

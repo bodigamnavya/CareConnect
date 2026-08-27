@@ -1,114 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Register - CareConnect</title>
-
+    <title>Create Account - CareConnect</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
-
 <body>
 
 <header class="navbar">
-
     <div class="logo">
-        🚑 CareConnect
+        <a href="index.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
     </div>
-
-    <nav>
+    <nav class="nav-links">
         <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
+        <a href="login.html">Sign In</a>
     </nav>
-
 </header>
 
-<main>
-
-    <div class="auth-container">
-
-        <div class="auth-card">
-
-            <h1>Create Account</h1>
-
-            <p>
-                Register to create your CareConnect account.
-            </p>
-
-            <form id="registerForm">
-
-                <label for="name">
-                    Full Name
-                </label>
-
-                <input
-                    type="text"
-                    id="name"
-                    placeholder="Enter your full name"
-                    required
-                >
-
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    id="email"
-                    placeholder="Enter your email"
-                    required
-                >
-
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Enter your password"
-                    required
-                >
-
-                <label for="confirmPassword">
-                    Confirm Password
-                </label>
-
-                <input
-                    type="password"
-                    id="confirmPassword"
-                    placeholder="Confirm your password"
-                    required
-                >
-
-                <button type="submit">
-                    Create Account
-                </button>
-
-            </form>
-
-            <div id="registerMessage"></div>
-
-            <p class="auth-link">
-                Already have an account?
-                <a href="login.html">
-                    Login
-                </a>
-            </p>
-
+<main class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">🛡️</span>
+            <h2>Create Your Account</h2>
+            <p>Join CareConnect for intelligent healthcare assistance</p>
         </div>
 
-    </div>
+        <form id="registerForm">
+            <div class="form-group">
+                <label class="form-label" for="name">Full Name</label>
+                <input type="text" id="name" class="form-control" placeholder="Dr. / Jane Doe" required autocomplete="name">
+            </div>
 
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" class="form-control" placeholder="name@example.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter your password" minlength="6" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="login.html">Sign In</a>
+        </div>
+    </div>
 </main>
 
 <footer>
-    <p>© 2026 CareConnect.</p>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
 </footer>
 
-<script src="js/script.js"></script>
-
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>

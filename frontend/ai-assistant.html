@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Assistant - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/assistant.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html">Scan</a>
+        <a href="ai-assistant.html" class="active">AI Assistant</a>
+        <a href="symptom-checker.html">Symptoms</a>
+        <a href="report-explainer.html">Reports</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container" style="padding-bottom: 10px;">
+    <!-- EMERGENCY BANNER (HIDDEN UNTIL TRIGGERED) -->
+    <div id="emergencyAlertBanner" class="emergency-banner" style="display: none; margin-top: 0;">
+        <span class="icon">🚨</span>
+        <div>
+            <h4>Immediate Emergency Alert Detected</h4>
+            <p>Your message indicates potentially critical symptoms. Please contact 911 (or local emergency hotline) or proceed immediately to the nearest hospital emergency room.</p>
+        </div>
+    </div>
+
+    <div class="chat-layout">
+        <div class="chat-card">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <span class="avatar-circle" style="width: 36px; height: 36px; font-size: 16px;">🤖</span>
+                    <div>
+                        <h3 style="font-size: 16px; margin-bottom: 2px;">CareConnect AI Assistant</h3>
+                        <span style="font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block;"></span> Online • Educational Assistance
+                        </span>
+                    </div>
+                </div>
+                <span class="badge badge-primary">AI Clinical Guidance</span>
+            </div>
+
+            <!-- CHAT MESSAGES THREAD -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="message-bubble assistant">
+                    <p>Hello! I am your <strong>CareConnect AI Healthcare Assistant</strong>.</p>
+                    <p>You can ask me questions about medical concepts, common symptoms, general wellness practices, or follow-up explanations on recent scans.</p>
+                    <p style="font-size: 12px; color: var(--text-dim); margin-top: 8px;"><em>Note: I provide health education and guidance, but do not provide definitive diagnoses or alter prescriptions.</em></p>
+                </div>
+            </div>
+
+            <!-- CHAT INPUT FORM -->
+            <form class="chat-input-area" id="chatForm">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Ask a health question (e.g., 'What does fever mean?', 'Explain blood pressure ranges')..." autocomplete="off" required>
+                <button type="submit" class="btn btn-primary" id="sendBtn" style="border-radius: var(--radius-full); padding: 10px 20px;">
+                    <span>Send</span> ➔
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

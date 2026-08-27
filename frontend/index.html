@@ -1,130 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>CareConnect - Emergency Medical Safety</title>
-
+    <meta name="description" content="CareConnect - Professional AI-Powered Healthcare Assistance Platform offering medical image scanning, symptom triage, and clinical report explanation.">
+    <title>CareConnect - AI-Powered Healthcare Assistance</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
-
 <body>
 
 <header class="navbar">
-
     <div class="logo">
-        🚑 CareConnect
+        <span>🚑</span> CareConnect
     </div>
-
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+    <nav class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="scan.html">Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="symptom-checker.html">Symptoms</a>
+        <a href="login.html" class="btn btn-secondary btn-sm">Login</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Register</a>
     </nav>
-
 </header>
 
 <main>
-
-    <section class="hero">
-
-        <div class="hero-content">
-
-            <h1>
-                Your Emergency.
-                <span>Our Connection.</span>
-            </h1>
-
-            <p>
-                CareConnect provides instant access to essential
-                medical information during emergencies through
-                SOS alerts and a secure Medical QR Passport.
-            </p>
-
-            <div class="hero-buttons">
-
-                <a href="register.html" class="btn primary">
-                    Get Started
-                </a>
-
-                <a href="login.html" class="btn secondary">
-                    Login
-                </a>
-
-            </div>
-
+    <!-- HERO SECTION -->
+    <section class="container" style="padding-top: 60px; padding-bottom: 60px; text-align: center;">
+        <span class="badge badge-primary" style="margin-bottom: 20px;">AI-POWERED CLINICAL ASSISTANCE</span>
+        <h1 style="font-size: 48px; max-width: 840px; margin: 0 auto 20px auto; letter-spacing: -1px;">
+            Intelligent Healthcare Intelligence, <span style="color: var(--primary);">Simplified for Everyone</span>
+        </h1>
+        <p style="font-size: 18px; color: var(--text-muted); max-width: 680px; margin: 0 auto 35px auto;">
+            Empowering patients and families with instant medical image scanning, multi-symptom triage, plain-language lab report explanation, and secure health record tracking.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <a href="register.html" class="btn btn-primary btn-lg">Get Started Free</a>
+            <a href="scan.html" class="btn btn-secondary btn-lg">Explore Medical Scanner</a>
         </div>
-
-        <div class="hero-card">
-
-            <div class="sos-icon">🚨</div>
-
-            <h2>Emergency SOS</h2>
-
-            <p>
-                Quickly share your emergency status
-                and location with your trusted contacts.
-            </p>
-
-        </div>
-
     </section>
 
-    <section class="features">
+    <!-- DISCLAIMER NOTICE -->
+    <div class="container" style="padding-top: 0; padding-bottom: 0;">
+        <div class="disclaimer-banner">
+            <span class="icon">ℹ️</span>
+            <div><strong>Clinical Notice:</strong> CareConnect AI provides preliminary informational assistance and healthcare education only. It does not provide medical diagnoses or replace emergency medical care.</div>
+        </div>
+    </div>
 
-        <h2>Why CareConnect?</h2>
-
-        <div class="feature-grid">
-
-            <div class="feature-card">
-                <div class="feature-icon">🚨</div>
-                <h3>Emergency SOS</h3>
-                <p>
-                    Activate an emergency alert and share
-                    your current location.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🏥</div>
-                <h3>Medical Profile</h3>
-                <p>
-                    Store important medical information
-                    securely in one place.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <h3>Medical QR Passport</h3>
-                <p>
-                    Emergency responders can quickly access
-                    essential medical information.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">🔐</div>
-                <h3>Secure Access</h3>
-                <p>
-                    Authentication and access logging help
-                    protect sensitive information.
-                </p>
-            </div>
-
+    <!-- CORE FEATURES GRID -->
+    <section class="container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="font-size: 32px; margin-bottom: 10px;">Comprehensive Healthcare Intelligence Suite</h2>
+            <p style="color: var(--text-muted);">Unified modules engineered for fast, intuitive, and accurate healthcare guidance.</p>
         </div>
 
-    </section>
+        <div class="actions-grid">
+            <div class="action-card">
+                <div>
+                    <div class="action-card-header">
+                        <span class="action-card-icon">🔬</span>
+                        <h3 class="action-card-title">Medical Image Scanner</h3>
+                    </div>
+                    <p class="action-card-desc">Scan Chest X-Rays, Skin Lesions, and Retinal images with computer vision pattern recognition and structured confidence breakdowns.</p>
+                </div>
+                <a href="scan.html" class="btn btn-primary btn-sm">Launch Scanner</a>
+            </div>
 
+            <div class="action-card">
+                <div>
+                    <div class="action-card-header">
+                        <span class="action-card-icon">💬</span>
+                        <h3 class="action-card-title">AI Health Assistant</h3>
+                    </div>
+                    <p class="action-card-desc">Interactive healthcare dialogue assistant with conversation memory, medication guidance, and automatic emergency detection.</p>
+                </div>
+                <a href="ai-assistant.html" class="btn btn-secondary btn-sm">Ask AI</a>
+            </div>
+
+            <div class="action-card">
+                <div>
+                    <div class="action-card-header">
+                        <span class="action-card-icon">🩺</span>
+                        <h3 class="action-card-title">Symptom Checker & Triage</h3>
+                    </div>
+                    <p class="action-card-desc">Input symptoms to receive risk classification (LOW, MODERATE, URGENT), general self-care recommendations, and red-flag alerts.</p>
+                </div>
+                <a href="symptom-checker.html" class="btn btn-secondary btn-sm">Check Symptoms</a>
+            </div>
+
+            <div class="action-card">
+                <div>
+                    <div class="action-card-header">
+                        <span class="action-card-icon">📄</span>
+                        <h3 class="action-card-title">Medical Report Explainer</h3>
+                    </div>
+                    <p class="action-card-desc">Upload lab results and diagnostic reports to translate complex medical abbreviations into easy-to-understand summaries.</p>
+                </div>
+                <a href="report-explainer.html" class="btn btn-secondary btn-sm">Explain Report</a>
+            </div>
+
+            <div class="action-card">
+                <div>
+                    <div class="action-card-header">
+                        <span class="action-card-icon">📋</span>
+                        <h3 class="action-card-title">Health Records Vault</h3>
+                    </div>
+                    <p class="action-card-desc">Store personal allergies, chronic conditions, active medications, and emergency contacts in an encrypted database.</p>
+                </div>
+                <a href="health-records.html" class="btn btn-secondary btn-sm">View Records</a>
+            </div>
+
+            <div class="action-card">
+                <div>
+                    <div class="action-card-header">
+                        <span class="action-card-icon">✨</span>
+                        <h3 class="action-card-title">AI Health Summary</h3>
+                    </div>
+                    <p class="action-card-desc">Synthesize your personal medical scans, records, and clinical trends into one personalized, downloadable summary.</p>
+                </div>
+                <a href="health-summary.html" class="btn btn-secondary btn-sm">View Summary</a>
+            </div>
+        </div>
+    </section>
 </main>
 
 <footer>
-    <p>
-        © 2026 CareConnect. Emergency Medical Safety Platform.
-    </p>
+    <p>© 2026 CareConnect. AI-Powered Healthcare Assistance Platform. All rights reserved.</p>
 </footer>
 
+<script src="js/config.js"></script>
 </body>
 </html>

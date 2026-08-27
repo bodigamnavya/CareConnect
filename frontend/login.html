@@ -1,93 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Login - CareConnect</title>
-
+    <title>Sign In - CareConnect</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
-
 <body>
 
 <header class="navbar">
-
     <div class="logo">
-        🚑 CareConnect
+        <a href="index.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
     </div>
-
-    <nav>
+    <nav class="nav-links">
         <a href="index.html">Home</a>
         <a href="register.html">Register</a>
     </nav>
-
 </header>
 
-<main>
-
-    <div class="auth-container">
-
-        <div class="auth-card">
-
-            <h1>Welcome Back</h1>
-
-            <p>
-                Login to your CareConnect account to access
-                your medical information securely.
-            </p>
-
-            <form id="loginForm">
-
-                <label for="loginEmail">
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    id="loginEmail"
-                    placeholder="Enter your email"
-                    required
-                >
-
-                <label for="loginPassword">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Enter your password"
-                    required
-                >
-
-                <button type="submit">
-                    Login
-                </button>
-
-            </form>
-
-            <div id="loginMessage"></div>
-
-            <p class="auth-link">
-                Don't have an account?
-                <a href="register.html">
-                    Create Account
-                </a>
-            </p>
-
+<main class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">🔐</span>
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your personal healthcare portal</p>
         </div>
 
-    </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="loginEmail">Email Address</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com" required autocomplete="email">
+            </div>
 
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Sign In</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="register.html">Create an account</a>
+        </div>
+    </div>
 </main>
 
 <footer>
-    <p>© 2026 CareConnect.</p>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
 </footer>
 
-<script src="js/script.js"></script>
-
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>

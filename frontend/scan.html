@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Image Scanner - CareConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/scan.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo">
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
+            <span>🚑</span> CareConnect
+        </a>
+    </div>
+    <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="scan.html" class="active">Scan</a>
+        <a href="ai-assistant.html">AI Assistant</a>
+        <a href="symptom-checker.html">Symptoms</a>
+        <a href="history.html">History</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div style="margin-bottom: 24px;">
+        <span class="badge badge-primary">AI CLINICAL SCANNER</span>
+        <h1 style="font-size: 32px; margin: 8px 0 4px 0;">Medical Image Analysis Studio</h1>
+        <p style="color: var(--text-muted);">Upload or capture a medical image for computer vision pattern recognition and structured findings.</p>
+    </div>
+
+    <!-- DISCLAIMER BANNER -->
+    <div class="disclaimer-banner">
+        <span class="icon">ℹ️</span>
+        <div><strong>Preliminary Assistance:</strong> This AI scan is for informational assistance only and is not a medical diagnosis. Always consult a licensed healthcare practitioner.</div>
+    </div>
+
+    <div class="scan-studio-grid">
+        <!-- SCAN INPUT CONTROLS -->
+        <div class="card">
+            <div class="form-group">
+                <label class="form-label" for="scanType">Select Scan Category</label>
+                <select id="scanType" class="form-control">
+                    <option value="Chest X-Ray">Chest X-Ray (Pulmonary / Ribs)</option>
+                    <option value="Skin Lesion">Skin Lesion / Dermatology</option>
+                    <option value="Retinal / Eye">Retinal / Fundus Examination</option>
+                    <option value="General Medical Scan">General Medical Radiography</option>
+                </select>
+            </div>
+
+            <!-- DROPZONE -->
+            <div class="dropzone-container" id="scanDropzone">
+                <span class="dropzone-icon">📁</span>
+                <div class="dropzone-title">Click to upload or drag & drop image</div>
+                <div class="dropzone-subtitle">Supported formats: PNG, JPG, JPEG, WEBP (Max 16MB)</div>
+                <input type="file" id="imageFileInput" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+            </div>
+
+            <!-- PREVIEW BOX -->
+            <div class="preview-box" id="previewContainer" style="display: none;">
+                <img id="previewImage" alt="Scan Preview">
+                <button type="button" class="preview-remove-btn" id="removePreviewBtn" title="Remove image">✕</button>
+            </div>
+
+            <!-- CAMERA BUTTON & START SCAN -->
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" id="openCameraBtn" style="flex: 1;">
+                    <span>📷</span> Use Camera
+                </button>
+                <button type="button" class="btn btn-primary" id="startScanBtn" style="flex: 1.5;" disabled>
+                    <span>🚀</span> Start AI Scan
+                </button>
+            </div>
+        </div>
+
+        <!-- SCAN GUIDELINES CARD -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h3 style="margin-bottom: 16px; font-size: 18px;"><span>💡</span> Image Quality Best Practices</h3>
+                <ul style="padding-left: 20px; color: var(--text-muted); font-size: 14px; display: flex; flex-direction: column; gap: 12px;">
+                    <li><strong>Adequate Lighting:</strong> Ensure high contrast and sharp focus on the region of clinical interest.</li>
+                    <li><strong>No Glare:</strong> If photographing an X-Ray viewbox or digital screen, avoid reflections and angle glare.</li>
+                    <li><strong>Unobstructed Margins:</strong> Include surrounding anatomical landmarks for proper spatial context.</li>
+                    <li><strong>Privacy Safety:</strong> Please crop out any personal identifiable identifiers (such as national ID or patient barcode) prior to scanning.</li>
+                </ul>
+            </div>
+
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-top: 24px;">
+                <h4 style="font-size: 14px; margin-bottom: 4px; color: var(--accent);"><span>🔒</span> HIPAA & Privacy Protected</h4>
+                <p style="font-size: 12px; color: var(--text-dim);">Your medical images are processed securely in an isolated environment with user-scoped access control.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- CAMERA MODAL -->
+<div id="cameraModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div class="card" style="max-width: 500px; width: 100%; text-align: center;">
+        <h3 style="margin-bottom: 14px;">Capture Medical Image</h3>
+        <div class="camera-viewfinder">
+            <video id="cameraVideo" autoplay playsinline></video>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 20px; justify-content: center;">
+            <button type="button" class="btn btn-secondary" id="closeCameraBtn">Cancel</button>
+            <button type="button" class="btn btn-primary" id="capturePhotoBtn"><span>📸</span> Capture Photo</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/scan.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
