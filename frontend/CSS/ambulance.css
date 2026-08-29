@@ -1,0 +1,540 @@
+/* =====================================================
+CARECONNECT - AMBULANCE PAGE
+===================================================== */
+
+.ambulance-page {
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
+padding: 35px 20px 50px;
+box-sizing: border-box;
+}
+
+/* =====================================================
+HEADER
+===================================================== */
+
+.ambulance-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 25px;
+margin-bottom: 30px;
+}
+
+.header-content {
+display: flex;
+align-items: center;
+gap: 18px;
+}
+
+.ambulance-icon {
+width: 65px;
+height: 65px;
+border-radius: 16px;
+background: #eff6ff;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 35px;
+flex-shrink: 0;
+}
+
+.ambulance-header h1 {
+margin: 0 0 8px;
+font-size: 32px;
+}
+
+.ambulance-header p {
+margin: 0;
+color: #64748b;
+line-height: 1.6;
+}
+
+.location-status {
+padding: 11px 18px;
+border-radius: 30px;
+background: #fef2f2;
+color: #991b1b;
+font-weight: 600;
+white-space: nowrap;
+}
+
+/* =====================================================
+LOCATION CARD
+===================================================== */
+
+.location-card {
+display: flex;
+align-items: center;
+gap: 20px;
+padding: 25px;
+background: #ffffff;
+border: 1px solid #e5e7eb;
+border-radius: 18px;
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+margin-bottom: 25px;
+}
+
+.location-card-icon {
+width: 55px;
+height: 55px;
+border-radius: 14px;
+background: #eff6ff;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 28px;
+flex-shrink: 0;
+}
+
+.location-card-content {
+flex: 1;
+}
+
+.location-card-content h2 {
+margin: 0 0 7px;
+font-size: 21px;
+}
+
+.location-card-content p {
+margin: 0;
+color: #64748b;
+}
+
+.location-message {
+margin-top: 8px;
+font-size: 13px;
+color: #64748b;
+}
+
+.location-button {
+min-width: 210px;
+cursor: pointer;
+}
+
+/* =====================================================
+MAP SECTION
+===================================================== */
+
+.map-section {
+margin-top: 25px;
+background: #ffffff;
+border: 1px solid #e5e7eb;
+border-radius: 18px;
+padding: 20px;
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.map-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 15px;
+margin-bottom: 18px;
+}
+
+.map-header h2 {
+margin: 0 0 5px;
+font-size: 22px;
+}
+
+.map-header p {
+margin: 0;
+color: #64748b;
+font-size: 14px;
+}
+
+.map-wrapper {
+width: 100%;
+height: 550px;
+overflow: hidden;
+border-radius: 14px;
+background: #e5e7eb;
+}
+
+#ambulanceMap {
+width: 100%;
+height: 100%;
+border: 0;
+display: block;
+}
+
+.map-actions {
+display: flex;
+justify-content: center;
+gap: 15px;
+margin-top: 18px;
+flex-wrap: wrap;
+}
+
+.map-actions button {
+cursor: pointer;
+}
+
+/* =====================================================
+AMBULANCE RESULTS
+===================================================== */
+
+.ambulance-results {
+margin-top: 30px;
+}
+
+.section-title {
+margin-bottom: 18px;
+}
+
+.section-title h2 {
+margin: 0 0 7px;
+font-size: 23px;
+}
+
+.section-title p {
+margin: 0;
+color: #64748b;
+}
+
+.ambulance-list {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 18px;
+}
+
+.ambulance-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 15px;
+padding: 20px;
+background: #ffffff;
+border: 1px solid #e5e7eb;
+border-radius: 15px;
+box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+}
+
+.ambulance-item-info {
+display: flex;
+align-items: center;
+gap: 14px;
+min-width: 0;
+}
+
+.ambulance-item-icon {
+width: 48px;
+height: 48px;
+border-radius: 12px;
+background: #fef2f2;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 25px;
+flex-shrink: 0;
+}
+
+.ambulance-item h3 {
+margin: 0 0 5px;
+font-size: 17px;
+}
+
+.ambulance-item p {
+margin: 0;
+color: #64748b;
+font-size: 13px;
+}
+
+.ambulance-item-actions {
+display: flex;
+gap: 8px;
+flex-shrink: 0;
+}
+
+.ambulance-item-actions button {
+cursor: pointer;
+}
+
+/* =====================================================
+LOADING
+===================================================== */
+
+.loading-section {
+text-align: center;
+padding: 45px 20px;
+background: #ffffff;
+border-radius: 18px;
+border: 1px solid #e5e7eb;
+margin-top: 25px;
+}
+
+.loader {
+width: 45px;
+height: 45px;
+border: 4px solid #e5e7eb;
+border-top: 4px solid #2563eb;
+border-radius: 50%;
+margin: 0 auto 18px;
+animation: ambulanceSpin 1s linear infinite;
+}
+
+@keyframes ambulanceSpin {
+from {
+transform: rotate(0deg);
+}
+
+```
+to {
+    transform: rotate(360deg);
+}
+```
+
+}
+
+.loading-section h3 {
+margin: 0 0 8px;
+}
+
+.loading-section p {
+margin: 0;
+color: #64748b;
+}
+
+/* =====================================================
+ERROR
+===================================================== */
+
+.error-section {
+max-width: 600px;
+margin: 30px auto;
+padding: 35px 25px;
+text-align: center;
+background: #fff7ed;
+border: 1px solid #fed7aa;
+border-radius: 18px;
+}
+
+.error-icon {
+font-size: 45px;
+margin-bottom: 10px;
+}
+
+.error-section h2 {
+margin: 0 0 10px;
+}
+
+.error-section p {
+color: #64748b;
+margin-bottom: 20px;
+}
+
+/* =====================================================
+EMERGENCY CARD
+===================================================== */
+
+.emergency-card {
+display: flex;
+align-items: center;
+gap: 20px;
+margin-top: 30px;
+padding: 25px;
+background: #fff1f2;
+border: 1px solid #fecdd3;
+border-radius: 18px;
+}
+
+.emergency-icon {
+font-size: 40px;
+flex-shrink: 0;
+}
+
+.emergency-content {
+flex: 1;
+}
+
+.emergency-content h2 {
+margin: 0 0 7px;
+color: #991b1b;
+}
+
+.emergency-content p {
+margin: 0;
+color: #7f1d1d;
+line-height: 1.5;
+}
+
+.emergency-button {
+background: #dc2626;
+color: #ffffff;
+text-decoration: none;
+min-width: 130px;
+text-align: center;
+}
+
+.emergency-button:hover {
+background: #b91c1c;
+}
+
+/* =====================================================
+INFORMATION CARDS
+===================================================== */
+
+.ambulance-info {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 18px;
+margin-top: 30px;
+}
+
+.info-card {
+display: flex;
+gap: 14px;
+padding: 20px;
+background: #f8fafc;
+border-radius: 15px;
+}
+
+.info-card > span {
+font-size: 28px;
+flex-shrink: 0;
+}
+
+.info-card h3 {
+margin: 0 0 7px;
+font-size: 17px;
+}
+
+.info-card p {
+margin: 0;
+color: #64748b;
+font-size: 14px;
+line-height: 1.5;
+}
+
+/* =====================================================
+BUTTON FIX
+===================================================== */
+
+.ambulance-page button,
+.ambulance-page a {
+transition: 0.2s ease;
+}
+
+.ambulance-page button:disabled {
+opacity: 0.6;
+cursor: not-allowed;
+}
+
+/* =====================================================
+RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+```
+.ambulance-header {
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.location-card {
+    flex-wrap: wrap;
+}
+
+.location-button {
+    width: 100%;
+}
+
+.ambulance-list {
+    grid-template-columns: 1fr;
+}
+
+.ambulance-info {
+    grid-template-columns: 1fr;
+}
+
+.map-wrapper {
+    height: 500px;
+}
+```
+
+}
+
+@media (max-width: 600px) {
+
+```
+.ambulance-page {
+    padding: 25px 12px 40px;
+}
+
+.ambulance-header h1 {
+    font-size: 27px;
+}
+
+.header-content {
+    align-items: flex-start;
+}
+
+.ambulance-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 28px;
+}
+
+.location-card {
+    padding: 20px;
+    align-items: flex-start;
+}
+
+.location-card-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 23px;
+}
+
+.map-section {
+    padding: 12px;
+}
+
+.map-header {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.map-header button {
+    width: 100%;
+}
+
+.map-wrapper {
+    height: 430px;
+}
+
+.map-actions {
+    flex-direction: column;
+}
+
+.map-actions button {
+    width: 100%;
+}
+
+.ambulance-item {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.ambulance-item-actions {
+    width: 100%;
+}
+
+.ambulance-item-actions button {
+    flex: 1;
+}
+
+.emergency-card {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.emergency-button {
+    width: 100%;
+}
+```
+
+}

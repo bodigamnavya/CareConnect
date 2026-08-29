@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>Video Call - CareConnect</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/video-call.css">
+<link rel="stylesheet" href="css/responsive.css">
+```
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+```
+<div class="logo">
+    <a href="dashboard.html">
+        🚑 CareConnect
+    </a>
+</div>
+
+<nav class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="index.html">Home</a>
+</nav>
+```
+
+</header>
+
+<main class="video-page">
+
+```
+<!-- =========================================
+     VIDEO INTRO
+========================================== -->
+
+<section class="video-intro">
+
+    <div>
+
+        <span class="video-icon">🎥</span>
+
+        <h1>CareConnect Video Call</h1>
+
+        <p>
+            Connect securely with your healthcare support team
+            through a live video consultation.
+        </p>
+
+    </div>
+
+    <div id="connectionStatus" class="status-badge">
+        Ready
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     START SCREEN
+========================================== -->
+
+<section id="startScreen" class="start-card">
+
+    <div class="start-icon">
+        🎥
+    </div>
+
+    <h2>
+        Start a Video Call
+    </h2>
+
+    <p>
+        Enter a meeting name to create or join a
+        CareConnect video room.
+    </p>
+
+
+    <div class="meeting-form">
+
+        <label for="meetingName">
+            Meeting Name
+        </label>
+
+        <input
+            type="text"
+            id="meetingName"
+            placeholder="Example: careconnect-demo"
+            autocomplete="off"
+        >
+
+
+        <p class="input-help">
+            Use the same meeting name to connect
+            with another participant.
+        </p>
+
+
+        <button
+            type="button"
+            id="startCallButton"
+            class="btn btn-primary">
+
+            🎥 Start Video Call
+
+        </button>
+
+    </div>
+
+
+    <div class="privacy-note">
+
+        <span>🔒</span>
+
+        <p>
+            Do not share sensitive medical information
+            in an unsecured meeting room.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     VIDEO CALL SECTION
+========================================== -->
+
+<section
+    id="callSection"
+    class="call-section"
+    style="display:none;">
+
+    <div class="call-header">
+
+        <div>
+
+            <h2>
+                Live Video Call
+            </h2>
+
+            <p id="roomNameDisplay">
+                Meeting room
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="copyRoomButton"
+            class="btn btn-secondary">
+
+            📋 Copy Room Name
+
+        </button>
+
+    </div>
+
+
+    <!-- JITSI CONTAINER -->
+
+    <div class="video-container">
+
+        <div
+            id="jitsiContainer"
+            class="jitsi-container">
+        </div>
+
+    </div>
+
+
+    <!-- CALL ACTIONS -->
+
+    <div class="call-actions">
+
+        <button
+            type="button"
+            id="leaveCallButton"
+            class="btn btn-danger">
+
+            📞 End Call
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================
+     ERROR SECTION
+========================================== -->
+
+<section
+    id="errorSection"
+    class="error-section"
+    style="display:none;">
+
+    <div class="error-icon">
+        ⚠️
+    </div>
+
+    <h2>
+        Video Call Error
+    </h2>
+
+    <p id="errorMessage">
+        Unable to start the video call.
+    </p>
+
+    <button
+        type="button"
+        id="retryButton"
+        class="btn btn-primary">
+
+        Try Again
+
+    </button>
+
+</section>
+
+
+<!-- =========================================
+     INFORMATION
+========================================== -->
+
+<section class="video-info">
+
+    <div class="info-card">
+
+        <span>🎥</span>
+
+        <div>
+
+            <h3>
+                Video & Audio
+            </h3>
+
+            <p>
+                Use your camera and microphone to
+                communicate during the call.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="info-card">
+
+        <span>🔒</span>
+
+        <div>
+
+            <h3>
+                Private Room
+            </h3>
+
+            <p>
+                Share the meeting name only with
+                the intended participant.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="info-card">
+
+        <span>💻</span>
+
+        <div>
+
+            <h3>
+                Works in Browser
+            </h3>
+
+            <p>
+                No additional application installation
+                is required.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+```
+
+</main>
+
+<!-- =========================================
+     FOOTER
+========================================== -->
+
+<footer>
+
+```
+<p>
+    © 2026 CareConnect. Healthcare Assistance Platform.
+</p>
+```
+
+</footer>
+
+<!-- =========================================
+     JITSI EXTERNAL API
+========================================== -->
+
+<script src="https://meet.jit.si/external_api.js"></script>
+
+<!-- CARECONNECT VIDEO CALL JS -->
+
+<script src="js/video-call.js"></script>
+
+</body>
+
+</html>
