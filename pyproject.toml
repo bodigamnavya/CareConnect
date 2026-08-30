@@ -1,2 +1,19 @@
+[project]
+name = "careconnect"
+version = "2.0.0"
+description = "CareConnect AI-Powered Healthcare Assistance Platform"
+requires-python = ">=3.10"
+dependencies = [
+    "Flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "pymongo>=4.0.0",
+    "python-dotenv>=1.0.0",
+    "bcrypt>=4.0.0",
+    "PyJWT>=2.8.0",
+    "Pillow>=9.5.0",
+    "qrcode>=7.4.0",
+    "requests>=2.31.0"
+]
+
 [tool.vercel]
 entrypoint = "backend.app:app"
