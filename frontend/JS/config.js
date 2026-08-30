@@ -4,16 +4,15 @@
 
 const CareConnectConfig = {
     // Dynamic API Base URL resolver:
-    // If served directly by backend or production reverse proxy, use current origin
-    // If running via Live Server / local static file, fallback to default backend port 5000
+    // If served directly by backend or production domain, use origin
+    // Fallback to http://127.0.0.1:5000 for local frontend development (e.g. Live Server)
     getApiBaseUrl: function () {
-        if (window.location.protocol.startsWith("http")) {
-            // If served from Flask port 5000 or production domain
+        if (typeof window !== "undefined" && window.location && window.location.protocol.startsWith("http")) {
+            // If served from Flask port 5000 or custom production host (e.g. Render / Vercel with reverse proxy)
             if (window.location.port === "5000" || (window.location.port === "" && window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost")) {
                 return window.location.origin;
             }
         }
-        // Local frontend development server fallback
         return "http://127.0.0.1:5000";
     },
 
@@ -28,6 +27,37 @@ const CareConnectConfig = {
             headers["Authorization"] = `Bearer ${token}`;
         }
         return headers;
+    },
+
+    // Get current logged-in user
+    getUser: function () {
+        try {
+            const raw = localStorage.getItem("careconnect_user") || localStorage.getItem("user");
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    // Save session info
+    setSession: function (token, user) {
+        if (token) {
+            localStorage.setItem("careconnect_token", token);
+            localStorage.setItem("token", token);
+        }
+        if (user) {
+            const str = typeof user === "string" ? user : JSON.stringify(user);
+            localStorage.setItem("careconnect_user", str);
+            localStorage.setItem("user", str);
+        }
+    },
+
+    // Clear session info
+    clearSession: function () {
+        localStorage.removeItem("careconnect_token");
+        localStorage.removeItem("careconnect_user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
     },
 
     // Session Management Helper

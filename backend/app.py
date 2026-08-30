@@ -13,6 +13,9 @@ from routes.history import history_bp
 from routes.health_records import health_records_bp
 from routes.reports import reports_bp
 from routes.profile import profile_bp
+from routes.ambulance import ambulance_bp
+from routes.sos import sos_bp
+from routes.qr import qr_bp
 
 def create_app():
     app = Flask(__name__, static_folder="../frontend", static_url_path="")
@@ -22,7 +25,12 @@ def create_app():
     init_db()
 
     # Configure CORS
-    CORS(app, resources={r"/api/*": {"origins": Config.FRONTEND_URL, "allow_headers": ["Content-Type", "Authorization"]}})
+    CORS(
+        app,
+        resources={r"/*": {"origins": "*"}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"]
+    )
 
     # Register Production Blueprints
     app.register_blueprint(auth_bp)
@@ -32,6 +40,9 @@ def create_app():
     app.register_blueprint(health_records_bp)
     app.register_blueprint(reports_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(ambulance_bp)
+    app.register_blueprint(sos_bp)
+    app.register_blueprint(qr_bp)
 
     # Root & Health Endpoints
     @app.route("/")

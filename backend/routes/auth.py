@@ -27,7 +27,7 @@ def register():
     # Check for existing user
     existing = query_db("SELECT id FROM users WHERE email = ?", (email,), one=True)
     if existing:
-        return jsonify({"success": False, "message": "Email is already registered. Please login."}), 409
+        return jsonify({"success": False, "message": "Email is already registered. Please sign in."}), 409
 
     user_id = f"usr_{uuid.uuid4().hex[:16]}"
     pwd_hash = hash_password(password)
@@ -82,5 +82,4 @@ def login():
 
 @auth_bp.route("/api/logout", methods=["POST"])
 def logout():
-    # Client will clear stored token
     return jsonify({"success": True, "message": "Logged out successfully."}), 200

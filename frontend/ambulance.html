@@ -1,735 +1,232 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Nearby Ambulance - CareConnect</title>
-
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/ambulance.css">
-    <link rel="stylesheet" href="css/responsive.css">
-
-    <style>
-
-        .ambulance-page {
-            max-width: 1200px;
-            margin: auto;
-            padding: 30px 20px;
-        }
-
-        .ambulance-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .header-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .ambulance-icon {
-            font-size: 48px;
-        }
-
-        .location-status {
-            padding: 10px 18px;
-            border-radius: 25px;
-            background: #f1f5f9;
-            font-weight: 600;
-        }
-
-        .location-card {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            gap: 20px;
-            align-items: center;
-            padding: 30px;
-            background: white;
-            border-radius: 18px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-
-        .location-card-icon {
-            font-size: 42px;
-        }
-
-        .location-card-content h2 {
-            margin: 0 0 8px;
-        }
-
-        .location-card-content p {
-            margin: 0 0 8px;
-        }
-
-        .location-message {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        .location-button {
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
-        .map-section {
-            margin-top: 25px;
-            padding: 25px;
-            background: white;
-            border-radius: 18px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        }
-
-        .map-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .map-header h2 {
-            margin: 0 0 5px;
-        }
-
-        .map-header p {
-            margin: 0;
-            opacity: 0.7;
-        }
-
-        .map-wrapper {
-            width: 100%;
-            height: 500px;
-            overflow: hidden;
-            border-radius: 14px;
-            background: #e5e7eb;
-        }
-
-        .map-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        .map-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .map-actions button {
-            min-width: 190px;
-            cursor: pointer;
-        }
-
-        .ambulance-results {
-            margin-top: 25px;
-            padding: 25px;
-            background: white;
-            border-radius: 18px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        }
-
-        .ambulance-list {
-            margin-top: 20px;
-        }
-
-        .ambulance-result-card {
-            padding: 20px;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            margin-bottom: 15px;
-        }
-
-        .ambulance-result-card h3 {
-            margin: 0 0 8px;
-        }
-
-        .ambulance-result-card p {
-            margin: 5px 0 15px;
-            opacity: 0.7;
-        }
-
-        .ambulance-result-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .ambulance-result-actions button {
-            cursor: pointer;
-        }
-
-        .loading-section,
-        .error-section {
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 35px;
-            text-align: center;
-            border-radius: 18px;
-            background: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        }
-
-        .emergency-card {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 18px;
-            background: #fff1f2;
-        }
-
-        .emergency-icon {
-            font-size: 40px;
-        }
-
-        .emergency-content {
-            flex: 1;
-        }
-
-        .emergency-content h2 {
-            margin: 0 0 5px;
-        }
-
-        .emergency-content p {
-            margin: 0;
-        }
-
-        .emergency-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .emergency-actions .btn {
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .emergency-button {
-            background: #dc2626;
-            color: white;
-            text-decoration: none;
-        }
-
-        .ambulance-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 25px;
-        }
-
-        .info-card {
-            display: flex;
-            gap: 15px;
-            padding: 20px;
-            border-radius: 14px;
-            background: #f8fafc;
-        }
-
-        .info-card > span {
-            font-size: 28px;
-        }
-
-        .info-card h3 {
-            margin: 0 0 7px;
-        }
-
-        .info-card p {
-            margin: 0;
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        @media (max-width: 800px) {
-
-            .ambulance-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .location-card {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .location-button {
-                width: 100%;
-            }
-
-            .map-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .map-wrapper {
-                height: 450px;
-            }
-
-            .ambulance-info {
-                grid-template-columns: 1fr;
-            }
-
-            .emergency-card {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .emergency-actions {
-                width: 100%;
-                flex-direction: column;
-            }
-
-            .emergency-actions .btn {
-                width: 100%;
-                text-align: center;
-            }
-
-        }
-
-    </style>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Ambulance Assistance - CareConnect</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/ambulance.css">
+    <link rel="stylesheet" href="CSS/responsive.css">
 </head>
-
-
 <body>
 
-
 <header class="navbar">
-
     <div class="logo">
-
-        <a href="dashboard.html"
-           style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none;">
-
+        <a href="dashboard.html" style="display:flex; align-items:center; gap:8px; color:inherit; text-decoration:none;">
             <span>🚑</span>
-
-            CareConnect
-
+            <strong>CareConnect</strong>
         </a>
-
     </div>
 
-
     <nav class="nav-links">
-
-        <a href="dashboard.html">
-            Dashboard
-        </a>
-
-        <a href="index.html">
-            Home
-        </a>
-
+        <a href="dashboard.html">Dashboard</a>
+        <a href="ambulance.html" class="active">Ambulance</a>
+        <a href="video-call.html">Video Call</a>
+        <a href="medical-profile.html">Medical Profile</a>
+        <a href="sos-history.html">SOS History</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm" style="margin-left:5px;">Logout</a>
     </nav>
-
 </header>
 
-
-
 <main class="ambulance-page">
-
-
-    <!-- PAGE HEADER -->
-
-    <section class="ambulance-header">
-
+    <div class="ambulance-header">
         <div class="header-content">
-
-            <div class="ambulance-icon">
-                🚑
-            </div>
-
+            <div class="ambulance-icon">🚑</div>
             <div>
+                <h1>Emergency Ambulance Assistance</h1>
+                <p>Request rapid ambulance dispatch and locate nearest emergency medical services in real time.</p>
+            </div>
+        </div>
+        <div class="location-status" id="locationStatus">
+            📍 Location Ready
+        </div>
+    </div>
 
-                <h1>
-                    Nearby Ambulance
-                </h1>
+    <!-- 🚑 1. EMERGENCY AMBULANCE REQUEST FORM -->
+    <section class="ambulance-form-card">
+        <h2><span>🚨</span> Request an Emergency Ambulance</h2>
+        <p>Submit patient emergency details for immediate assistance dispatch and clinical intake.</p>
 
-                <p>
-                    Find emergency ambulance services near your
-                    current location quickly and safely.
-                </p>
+        <form id="ambulanceRequestForm">
+            <div class="form-grid-2">
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label" for="patientName" style="display:block; margin-bottom:6px; font-weight:600;">Patient Name *</label>
+                    <input type="text" id="patientName" class="form-control" placeholder="Enter patient full name" required style="width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px;">
+                </div>
 
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label" for="contactNumber" style="display:block; margin-bottom:6px; font-weight:600;">Contact Number *</label>
+                    <input type="tel" id="contactNumber" class="form-control" placeholder="Phone number for dispatch coordination" required style="width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px;">
+                </div>
             </div>
 
-        </div>
+            <div class="form-grid-2">
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label" for="emergencyType" style="display:block; margin-bottom:6px; font-weight:600;">Emergency Type *</label>
+                    <select id="emergencyType" class="form-control" required style="width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px;">
+                        <option value="Cardiac Emergency">Cardiac / Chest Pain</option>
+                        <option value="Severe Trauma / Accident">Severe Trauma / Accident</option>
+                        <option value="Respiratory Distress">Respiratory Distress / Breathing Difficulty</option>
+                        <option value="Stroke / Neurological">Stroke / Loss of Consciousness</option>
+                        <option value="Obstetric Emergency">Pregnancy / Labor Emergency</option>
+                        <option value="General Acute Illness">General Acute Medical Emergency</option>
+                    </select>
+                </div>
 
-
-        <div id="locationStatus"
-             class="location-status">
-
-            📍 Location Not Detected
-
-        </div>
-
-    </section>
-
-
-
-    <!-- LOCATION CARD -->
-
-    <section class="location-card">
-
-        <div class="location-card-icon">
-            📍
-        </div>
-
-
-        <div class="location-card-content">
-
-            <h2>
-                Find Ambulances Near You
-            </h2>
-
-            <p>
-                Allow location access to find ambulance
-                services near your current location.
-            </p>
-
-            <div id="locationMessage"
-                 class="location-message">
-
-                Your location will be used only to find
-                nearby emergency services.
-
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label class="form-label" for="currentLocation" style="display:block; margin-bottom:6px; font-weight:600;">Current Location / Address *</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="currentLocation" class="form-control" placeholder="Enter street address or landmark" required style="flex:1; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px;">
+                        <button type="button" id="autoFillLocationBtn" class="btn btn-secondary" style="white-space:nowrap; padding:10px 14px; border-radius:8px; cursor:pointer;">📍 Use GPS</button>
+                    </div>
+                </div>
             </div>
 
-        </div>
-
-
-        <button
-            type="button"
-            id="locationButton"
-            class="btn btn-primary location-button">
-
-            📍 Use My Current Location
-
-        </button>
-
-    </section>
-
-
-
-    <!-- MAP SECTION -->
-
-    <section id="mapSection"
-             class="map-section"
-             style="display:none;">
-
-
-        <div class="map-header">
-
-            <div>
-
-                <h2>
-                    📍 Nearby Ambulances
-                </h2>
-
-                <p id="mapAddress">
-                    Finding your location...
-                </p>
-
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label" for="additionalDetails" style="display:block; margin-bottom:6px; font-weight:600;">Additional Clinical Details / Landmark</label>
+                <textarea id="additionalDetails" rows="2" class="form-control" placeholder="Floor number, apartment, symptoms, or special instructions" style="width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px;"></textarea>
             </div>
 
-
-            <button
-                type="button"
-                id="refreshLocationButton"
-                class="btn btn-secondary">
-
-                🔄 Refresh Location
-
+            <button type="submit" id="requestAmbulanceBtn" class="btn btn-primary" style="background:#dc2626; border-color:#dc2626; padding:14px 28px; font-size:16px; font-weight:600; cursor:pointer;">
+                🚑 Request Ambulance
             </button>
+        </form>
 
+        <div id="ambulanceRequestMessage" style="margin-top:15px; display:none;"></div>
+    </section>
+
+    <!-- 📍 2. LOCATION STATUS CARD -->
+    <div class="location-card">
+        <div class="location-card-icon">📍</div>
+        <div class="location-card-content">
+            <h2>Current GPS Location</h2>
+            <p id="mapAddress">Coordinates: Detecting live geolocation...</p>
+            <div class="location-message" id="locationMessage">
+                Use your browser GPS to pinpoint exact coordinates for emergency search.
+            </div>
         </div>
+        <button type="button" id="locationButton" class="btn btn-primary location-button">
+            📍 Use My Current Location
+        </button>
+    </div>
 
-
+    <!-- 🗺️ 3. LIVE GOOGLE MAPS AMBULANCE RADAR -->
+    <section class="map-section" id="mapSection">
+        <div class="map-header">
+            <div>
+                <h2>Nearby Ambulance Radar</h2>
+                <p>Live hospitals, trauma centers, and ambulance services located around your area.</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="button" id="refreshLocationButton" class="btn btn-secondary btn-sm">
+                    🔄 Refresh Radar
+                </button>
+                <button type="button" id="openMapButton" class="btn btn-primary btn-sm">
+                    ↗️ Open in Google Maps
+                </button>
+            </div>
+        </div>
 
         <div class="map-wrapper">
-
             <iframe
                 id="ambulanceMap"
-                title="Nearby Ambulances Map"
+                src="https://www.google.com/maps?q=ambulance+hospital+near+me&z=13&output=embed"
+                allowfullscreen=""
                 loading="lazy"
-                allowfullscreen>
+                referrerpolicy="no-referrer-when-downgrade">
             </iframe>
-
         </div>
-
-
-
-        <!-- MAP BUTTONS -->
 
         <div class="map-actions">
-
-            <button
-                type="button"
-                id="openMapButton"
-                class="btn btn-primary">
-
-                🗺️ Open Full Map
-
+            <button type="button" id="findAmbulanceButton" class="btn btn-primary">
+                🚑 Search Ambulances Near Me
             </button>
-
-
-            <button
-                type="button"
-                id="directionsButton"
-                class="btn btn-secondary">
-
-                🧭 Get Directions
-
+            <button type="button" id="directionsButton" class="btn btn-secondary">
+                🧭 Driving Directions
             </button>
-
         </div>
-
     </section>
 
-
-
-    <!-- AMBULANCE RESULTS -->
-
-    <section id="ambulanceResults"
-             class="ambulance-results"
-             style="display:none;">
-
-
+    <!-- 🚑 4. SEARCH RESULTS LIST -->
+    <section class="ambulance-results" id="ambulanceResults">
         <div class="section-title">
-
-            <h2>
-                🚑 Ambulance Services Near You
-            </h2>
-
-            <p>
-                Find nearby ambulance services and start
-                directions to your selected service.
-            </p>
-
+            <h2>Available Emergency Units</h2>
+            <p>Select a hospital or ambulance unit for immediate contact.</p>
         </div>
 
+        <div class="ambulance-list" id="ambulanceList">
+            <div class="ambulance-item">
+                <div class="ambulance-item-info">
+                    <div class="ambulance-item-icon">🏥</div>
+                    <div>
+                        <h3>City Emergency Care & Ambulance Unit</h3>
+                        <p>24/7 Advanced Life Support • Avg Response: 8-12 min</p>
+                    </div>
+                </div>
+                <div class="ambulance-item-actions">
+                    <a href="tel:112" class="btn btn-primary btn-sm" style="background:#dc2626; border-color:#dc2626; text-decoration:none;">📞 Call 112</a>
+                </div>
+            </div>
 
-        <div id="ambulanceList"
-             class="ambulance-list">
-
-            <button
-                type="button"
-                id="findAmbulanceButton"
-                class="btn btn-primary">
-
-                🚑 Find Ambulances
-
-            </button>
-
+            <div class="ambulance-item">
+                <div class="ambulance-item-info">
+                    <div class="ambulance-item-icon">🚑</div>
+                    <div>
+                        <h3>National Emergency Health Services</h3>
+                        <p>Rapid Response Trauma Fleet • Toll-Free Emergency</p>
+                    </div>
+                </div>
+                <div class="ambulance-item-actions">
+                    <a href="tel:911" class="btn btn-secondary btn-sm" style="text-decoration:none;">📞 Call Emergency</a>
+                </div>
+            </div>
         </div>
-
     </section>
 
-
-
-    <!-- LOADING -->
-
-    <section id="loadingSection"
-             class="loading-section"
-             style="display:none;">
-
-        <div class="loader"></div>
-
-        <h3>
-            Finding Your Location
-        </h3>
-
-        <p>
-            Please allow location access. Searching for
-            nearby ambulance services...
-        </p>
-
-    </section>
-
-
-
-    <!-- ERROR -->
-
-    <section id="errorSection"
-             class="error-section"
-             style="display:none;">
-
-        <div class="error-icon">
-            ⚠️
-        </div>
-
-        <h2>
-            Unable to Find Location
-        </h2>
-
-        <p id="errorMessage">
-            Please allow location access and try again.
-        </p>
-
-        <button
-            type="button"
-            id="retryButton"
-            class="btn btn-primary">
-
-            🔄 Try Again
-
-        </button>
-
-    </section>
-
-
-
-    <!-- EMERGENCY -->
-
-    <section class="emergency-card">
-
-        <div class="emergency-icon">
-            🚨
-        </div>
-
-
+    <!-- 🚨 5. CRITICAL DIRECT HOTLINE -->
+    <div class="emergency-card">
+        <div class="emergency-icon">🚨</div>
         <div class="emergency-content">
-
-            <h2>
-                Emergency?
-            </h2>
-
-            <p>
-                If you are experiencing a life-threatening
-                emergency, contact emergency services immediately.
-            </p>
-
+            <h2>Critical Life-Threatening Emergency?</h2>
+            <p>Do not wait for web responses. For cardiac arrest, severe accidents, or unconsciousness, dial national emergency dispatch immediately.</p>
         </div>
+        <a href="tel:112" class="emergency-button">📞 Call 112</a>
+    </div>
 
-
-        <div class="emergency-actions">
-
-            <button
-                type="button"
-                id="emergencyAmbulanceButton"
-                class="btn btn-primary">
-
-                🚑 Find Ambulance
-
-            </button>
-
-
-            <a
-                href="tel:112"
-                class="btn emergency-button">
-
-                📞 Call 112
-
-            </a>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- INFORMATION -->
-
+    <!-- ℹ️ 6. INFO CARDS -->
     <section class="ambulance-info">
-
-
         <div class="info-card">
-
-            <span>📍</span>
-
+            <span>⏱️</span>
             <div>
-
-                <h3>
-                    Live Location
-                </h3>
-
-                <p>
-                    Uses your current browser location to
-                    identify nearby services.
-                </p>
-
+                <h3>Rapid Response</h3>
+                <p>Automated coordinate relay enables fastest route calculation for responders.</p>
             </div>
-
         </div>
 
-
-
         <div class="info-card">
-
             <span>🗺️</span>
-
             <div>
-
-                <h3>
-                    Map Navigation
-                </h3>
-
-                <p>
-                    View nearby ambulance services and
-                    get directions using maps.
-                </p>
-
+                <h3>GPS Verification</h3>
+                <p>View nearby emergency triage facilities and get instant driving navigation.</p>
             </div>
-
         </div>
-
-
 
         <div class="info-card">
-
-            <span>🚨</span>
-
+            <span>🛡️</span>
             <div>
-
-                <h3>
-                    Emergency Support
-                </h3>
-
-                <p>
-                    For serious emergencies, call 112
-                    immediately.
-                </p>
-
+                <h3>Safety Protocol</h3>
+                <p>Stay calm, keep phone line open, and ensure entrance is clear for paramedics.</p>
             </div>
-
         </div>
-
-
     </section>
-
-
 </main>
 
-
-
 <footer>
-
-    <p>
-        © 2026 CareConnect. Healthcare Assistance Platform.
-    </p>
-
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
 </footer>
 
-
-
-<script src="js/ambulance.js"></script>
-
-
+<script src="JS/config.js"></script>
+<script src="JS/ambulance.js"></script>
+<script src="JS/auth.js"></script>
 </body>
-
 </html>
-```

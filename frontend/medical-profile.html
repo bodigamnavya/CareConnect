@@ -1,156 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Medical Profile - CareConnect</title>
-
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/auth.css">
+    <link rel="stylesheet" href="CSS/responsive.css">
 </head>
-
 <body>
 
 <header class="navbar">
-
     <div class="logo">
-        🚑 CareConnect
+        <a href="dashboard.html" style="display:flex; align-items:center; gap:8px; color:inherit; text-decoration:none;">
+            <span>🚑</span>
+            <strong>CareConnect</strong>
+        </a>
     </div>
 
-    <nav>
+    <nav class="nav-links">
         <a href="dashboard.html">Dashboard</a>
-        <a href="qr-passport.html">Medical QR</a>
+        <a href="medical-profile.html" class="active">Medical Profile</a>
+        <a href="qr-passport.html">QR Passport</a>
         <a href="sos-history.html">SOS History</a>
-        <a href="#" id="logoutButton">Logout</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm" style="margin-left:5px;">Logout</a>
     </nav>
-
 </header>
 
-<main>
-
-    <div class="auth-container">
-
-        <div class="auth-card">
-
-            <h1>Medical Profile 🏥</h1>
-
-            <p>
-                Store important medical information for emergency situations.
-            </p>
-
-            <form id="medicalProfileForm">
-
-                <label for="bloodGroup">
-                    Blood Group
-                </label>
-
-                <select id="bloodGroup" required>
-
-                    <option value="">
-                        Select blood group
-                    </option>
-
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-
-                </select>
-
-
-                <label for="phone">
-                    Emergency Phone
-                </label>
-
-                <input
-                    type="tel"
-                    id="phone"
-                    placeholder="Enter emergency phone number"
-                    required
-                >
-
-
-                <label for="allergies">
-                    Allergies
-                </label>
-
-                <textarea
-                    id="allergies"
-                    rows="3"
-                    placeholder="Example: Penicillin, peanuts"
-                ></textarea>
-
-
-                <label for="medications">
-                    Current Medications
-                </label>
-
-                <textarea
-                    id="medications"
-                    rows="3"
-                    placeholder="Enter current medications"
-                ></textarea>
-
-
-                <label for="conditions">
-                    Medical Conditions
-                </label>
-
-                <textarea
-                    id="conditions"
-                    rows="3"
-                    placeholder="Example: Asthma, diabetes"
-                ></textarea>
-
-
-                <label for="emergencyContact">
-                    Emergency Contact Name
-                </label>
-
-                <input
-                    type="text"
-                    id="emergencyContact"
-                    placeholder="Enter emergency contact name"
-                    required
-                >
-
-
-                <button type="submit">
-                    Save Medical Profile
-                </button>
-
-            </form>
-
-            <div id="medicalMessage"></div>
-
-            <p class="auth-link">
-
-                <a href="dashboard.html">
-                    ← Back to Dashboard
-                </a>
-
-            </p>
-
+<main class="container" style="max-width:800px; margin:40px auto; padding:0 20px;">
+    <div class="auth-card" style="max-width:100%;">
+        <div class="auth-header">
+            <span class="auth-icon">🏥</span>
+            <h2>Emergency Medical Profile</h2>
+            <p>Maintain critical physiological information for emergency physicians and QR health passports.</p>
         </div>
 
-    </div>
+        <form id="medicalProfileForm">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label" for="bloodGroup">Blood Group *</label>
+                    <select id="bloodGroup" class="form-control" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db;">
+                        <option value="">Select blood group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
 
+                <div class="form-group">
+                    <label class="form-label" for="phone">Emergency Phone *</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="Emergency contact number" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:14px;">
+                <label class="form-label" for="emergencyContact">Emergency Contact Name *</label>
+                <input type="text" id="emergencyContact" class="form-control" placeholder="E.g. Jane Doe (Spouse / Parent)" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db;">
+            </div>
+
+            <div class="form-group" style="margin-top:14px;">
+                <label class="form-label" for="allergies">Known Allergies</label>
+                <textarea id="allergies" rows="2" class="form-control" placeholder="E.g. Penicillin, Peanuts, Latex, Aspirin" style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db;"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top:14px;">
+                <label class="form-label" for="medications">Current Medications</label>
+                <textarea id="medications" rows="2" class="form-control" placeholder="E.g. Metformin 500mg, Lisinopril 10mg" style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db;"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top:14px;">
+                <label class="form-label" for="conditions">Chronic Medical Conditions</label>
+                <textarea id="conditions" rows="2" class="form-control" placeholder="E.g. Type 2 Diabetes, Hypertension, Asthma" style="width:100%; padding:10px; border-radius:8px; border:1px solid #d1d5db;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px; padding:12px; font-size:16px;">
+                💾 Save Medical Profile
+            </button>
+        </form>
+
+        <div id="medicalMessage" style="margin-top:15px; font-weight:500;"></div>
+
+        <div style="margin-top:20px; display:flex; justify-content:space-between; font-size:14px;">
+            <a href="dashboard.html" style="color:var(--primary-color);">← Back to Dashboard</a>
+            <a href="qr-passport.html" style="color:var(--primary-color);">View QR Health Passport →</a>
+        </div>
+    </div>
 </main>
 
 <footer>
-
-    <p>
-        © 2026 CareConnect. Emergency Medical Safety Platform.
-    </p>
-
+    <p>© 2026 CareConnect. Healthcare Assistance Platform.</p>
 </footer>
 
-<script src="js/script.js"></script>
-
+<script src="JS/config.js"></script>
+<script src="JS/script.js"></script>
+<script src="JS/auth.js"></script>
 </body>
 </html>

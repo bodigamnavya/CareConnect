@@ -1,800 +1,244 @@
+// =====================================================
+// CARECONNECT - AMBULANCE MODULE LOGIC (ambulance.js)
+// =====================================================
+
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("AMBULANCE JS INITIALIZED");
 
-    console.log("AMBULANCE JS LOADED");
+    function getApiBaseUrl() {
+        if (window.CareConnectConfig && typeof window.CareConnectConfig.getApiBaseUrl === "function") {
+            return window.CareConnectConfig.getApiBaseUrl();
+        }
+        return "http://127.0.0.1:5000";
+    }
 
-    var locationButton =
-        document.getElementById("locationButton");
+    const locationButton = document.getElementById("locationButton");
+    const refreshButton = document.getElementById("refreshLocationButton");
+    const openMapButton = document.getElementById("openMapButton");
+    const directionsButton = document.getElementById("directionsButton");
+    const findAmbulanceButton = document.getElementById("findAmbulanceButton");
+    const autoFillLocationBtn = document.getElementById("autoFillLocationBtn");
+    const ambulanceRequestForm = document.getElementById("ambulanceRequestForm");
 
-    var refreshButton =
-        document.getElementById("refreshLocationButton");
+    let latitude = null;
+    let longitude = null;
 
-    var openMapButton =
-        document.getElementById("openMapButton");
+    // Pre-fill patient name/phone from logged in user if available
+    const userData = localStorage.getItem("careconnect_user") || localStorage.getItem("user");
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            const pName = document.getElementById("patientName");
+            const cNumber = document.getElementById("contactNumber");
+            if (pName && !pName.value && user.name) pName.value = user.name;
+            if (cNumber && !cNumber.value && (user.phone || user.emergency_phone)) cNumber.value = user.phone || user.emergency_phone;
+        } catch (e) {
+            console.warn("Could not pre-fill user info in ambulance form:", e);
+        }
+    }
 
-    var directionsButton =
-        document.getElementById("directionsButton");
+    // =====================================================
+    // 1. AMBULANCE REQUEST FORM SUBMIT
+    // =====================================================
+    if (ambulanceRequestForm) {
+        ambulanceRequestForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-    var retryButton =
-        document.getElementById("retryButton");
+            const patientName = (document.getElementById("patientName")?.value || "").trim();
+            const contactNumber = (document.getElementById("contactNumber")?.value || "").trim();
+            const emergencyType = (document.getElementById("emergencyType")?.value || "General Medical Emergency").trim();
+            const currentLocation = (document.getElementById("currentLocation")?.value || "").trim();
+            const additionalDetails = (document.getElementById("additionalDetails")?.value || "").trim();
+            const submitBtn = document.getElementById("requestAmbulanceBtn");
+            const msgContainer = document.getElementById("ambulanceRequestMessage");
 
-    var findAmbulanceButton =
-        document.getElementById("findAmbulanceButton");
+            if (!patientName || !contactNumber || !currentLocation) {
+                if (msgContainer) {
+                    msgContainer.style.display = "block";
+                    msgContainer.style.padding = "14px";
+                    msgContainer.style.borderRadius = "8px";
+                    msgContainer.style.background = "#fee2e2";
+                    msgContainer.style.color = "#991b1b";
+                    msgContainer.textContent = "Please fill in all required fields (Patient Name, Contact Number, Location).";
+                }
+                return;
+            }
 
-    var emergencyAmbulanceButton =
-        document.getElementById("emergencyAmbulanceButton");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Submitting Emergency Request...";
+            }
 
+            try {
+                const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+                const headers = { "Content-Type": "application/json" };
+                if (token) {
+                    headers["Authorization"] = "Bearer " + token;
+                }
 
-    var latitude = null;
-    var longitude = null;
+                const response = await fetch(`${getApiBaseUrl()}/api/ambulance/request`, {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify({
+                        patient_name: patientName,
+                        contact_number: contactNumber,
+                        emergency_type: emergencyType,
+                        current_location: currentLocation,
+                        additional_details: additionalDetails
+                    })
+                });
 
+                const data = await response.json();
+                if (msgContainer) {
+                    msgContainer.style.display = "block";
+                    msgContainer.style.padding = "16px";
+                    msgContainer.style.borderRadius = "8px";
 
-    /* =====================================================
-       GET CURRENT LOCATION
-       ===================================================== */
+                    if (response.ok && data.success) {
+                        msgContainer.style.background = "#dcfce7";
+                        msgContainer.style.color = "#166534";
+                        msgContainer.style.border = "1px solid #bbf7d0";
+                        msgContainer.innerHTML = `
+                            <strong>✅ Ambulance request submitted successfully.</strong><br>
+                            <span style="font-size:14px;">${data.message}</span><br>
+                            <span style="font-size:13px; color:#15803d; margin-top:6px; display:inline-block;">Dispatch Tracking ID: <code>${data.request_id}</code> (Status: ${data.status})</span>
+                        `;
+                        ambulanceRequestForm.reset();
+                    } else {
+                        msgContainer.style.background = "#fee2e2";
+                        msgContainer.style.color = "#991b1b";
+                        msgContainer.style.border = "1px solid #fecaca";
+                        msgContainer.textContent = data.message || "Failed to submit ambulance request.";
+                    }
+                }
+            } catch (error) {
+                console.error("Ambulance request error:", error);
+                if (msgContainer) {
+                    msgContainer.style.display = "block";
+                    msgContainer.style.padding = "14px";
+                    msgContainer.style.borderRadius = "8px";
+                    msgContainer.style.background = "#fee2e2";
+                    msgContainer.style.color = "#991b1b";
+                    msgContainer.textContent = "Cannot connect to CareConnect server. Please dial 112 / 911 for immediate emergency assistance.";
+                }
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "🚑 Request Ambulance";
+                }
+            }
+        });
+    }
 
+    // =====================================================
+    // 2. GEOLOCATION RADAR
+    // =====================================================
     function getLocation() {
-
-        console.log("GET LOCATION");
+        const status = document.getElementById("locationStatus");
+        const address = document.getElementById("mapAddress");
+        const locationMessage = document.getElementById("locationMessage");
+        const map = document.getElementById("ambulanceMap");
 
         if (!navigator.geolocation) {
-
-            alert(
-                "Your browser does not support location."
-            );
-
+            alert("Your browser does not support geolocation.");
             return;
         }
-
 
         if (locationButton) {
-
             locationButton.disabled = true;
-
-            locationButton.innerText =
-                "📍 Detecting Location...";
-
+            locationButton.textContent = "📍 Detecting Location...";
         }
-
-
-        var status =
-            document.getElementById("locationStatus");
-
-
-        if (status) {
-
-            status.innerText =
-                "📍 Detecting Location...";
-
-        }
-
+        if (status) status.textContent = "📍 Detecting Location...";
 
         navigator.geolocation.getCurrentPosition(
-
             function (position) {
+                latitude = position.coords.latitude;
+                longitude = position.coords.longitude;
 
-                latitude =
-                    position.coords.latitude;
-
-                longitude =
-                    position.coords.longitude;
-
-
-                console.log(
-                    "LATITUDE:",
-                    latitude
-                );
-
-                console.log(
-                    "LONGITUDE:",
-                    longitude
-                );
-
+                console.log("GPS Detected:", latitude, longitude);
 
                 if (locationButton) {
-
                     locationButton.disabled = false;
-
-                    locationButton.innerText =
-                        "🔄 Update My Location";
-
+                    locationButton.textContent = "🔄 Update My Location";
                 }
-
-
                 if (status) {
-
-                    status.innerText =
-                        "📍 Location Detected";
-
+                    status.textContent = "✅ Location Detected";
+                    status.style.background = "#dcfce7";
+                    status.style.color = "#166534";
                 }
-
-
-                var message =
-                    document.getElementById(
-                        "locationMessage"
-                    );
-
-
-                if (message) {
-
-                    message.innerText =
-                        "✅ Your current location has been detected successfully.";
-
-                }
-
-
-                var mapSection =
-                    document.getElementById(
-                        "mapSection"
-                    );
-
-
-                if (mapSection) {
-
-                    mapSection.style.display =
-                        "block";
-
-                }
-
-
-                var results =
-                    document.getElementById(
-                        "ambulanceResults"
-                    );
-
-
-                if (results) {
-
-                    results.style.display =
-                        "block";
-
-                }
-
-
-                /* MAP */
-
-                var map =
-                    document.getElementById(
-                        "ambulanceMap"
-                    );
-
-
-                if (map) {
-
-                    map.src =
-                        "https://www.google.com/maps?q=ambulance+near+" +
-                        latitude +
-                        "," +
-                        longitude +
-                        "&z=14&output=embed";
-
-                }
-
-
-                /* ADDRESS */
-
-                var address =
-                    document.getElementById(
-                        "mapAddress"
-                    );
-
-
                 if (address) {
-
-                    address.innerText =
-                        "📍 Your current location: " +
-                        latitude.toFixed(6) +
-                        ", " +
-                        longitude.toFixed(6);
-
+                    address.textContent = `📍 Coordinates: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                }
+                if (locationMessage) {
+                    locationMessage.textContent = "✅ Real-time coordinates synced with ambulance radar.";
                 }
 
+                // Update location input field if empty
+                const locInput = document.getElementById("currentLocation");
+                if (locInput && !locInput.value) {
+                    locInput.value = `Lat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}`;
+                }
 
-                /* SHOW FIND BUTTON */
-
-                showFindAmbulanceButton();
-
+                // Update Google Maps embed
+                if (map) {
+                    map.src = `https://www.google.com/maps?q=ambulance+hospital+near+${latitude},${longitude}&z=14&output=embed`;
+                }
             },
-
-
             function (error) {
-
-                console.error(
-                    "LOCATION ERROR:",
-                    error
-                );
-
-
+                console.warn("Location error:", error);
                 if (locationButton) {
-
-                    locationButton.disabled =
-                        false;
-
-                    locationButton.innerText =
-                        "📍 Use My Current Location";
-
+                    locationButton.disabled = false;
+                    locationButton.textContent = "📍 Use My Current Location";
                 }
-
-
                 if (status) {
-
-                    status.innerText =
-                        "📍 Location Not Detected";
-
+                    status.textContent = "⚠️ Location Unavailable";
+                    status.style.background = "#fff7ed";
+                    status.style.color = "#c2410c";
                 }
-
-
-                if (error.code === 1) {
-
-                    alert(
-                        "Location permission denied. Please allow location access in your browser."
-                    );
-
-                }
-
-                else if (error.code === 2) {
-
-                    alert(
-                        "Location unavailable. Please turn ON Windows Location."
-                    );
-
-                }
-
-                else if (error.code === 3) {
-
-                    alert(
-                        "Location request timed out. Please try again."
-                    );
-
-                }
-
-                else {
-
-                    alert(
-                        "Unable to detect your location."
-                    );
-
-                }
-
             },
-
-
-            {
-
-                enableHighAccuracy: true,
-
-                timeout: 30000,
-
-                maximumAge: 0
-
-            }
-
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
-
     }
 
+    if (locationButton) locationButton.addEventListener("click", getLocation);
+    if (refreshButton) refreshButton.addEventListener("click", getLocation);
+    if (autoFillLocationBtn) autoFillLocationBtn.addEventListener("click", getLocation);
 
-
-    /* =====================================================
-       SHOW FIND AMBULANCE BUTTON
-       ===================================================== */
-
-    function showFindAmbulanceButton() {
-
-        var list =
-            document.getElementById(
-                "ambulanceList"
-            );
-
-
-        if (!list) {
-
-            return;
-
-        }
-
-
-        list.innerHTML = `
-
-            <div class="ambulance-result-card">
-
-                <h3>
-                    🚑 Nearby Ambulance Services
-                </h3>
-
-                <p>
-                    Your location has been detected.
-                    Click below to search for ambulance
-                    services near you.
-                </p>
-
-                <div class="ambulance-result-actions">
-
-                    <button
-                        type="button"
-                        id="findAmbulanceNow"
-                        class="btn btn-primary">
-
-                        🚑 Find Ambulances Near Me
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        var button =
-            document.getElementById(
-                "findAmbulanceNow"
-            );
-
-
-        if (button) {
-
-            button.addEventListener(
-                "click",
-                openAmbulanceSearch
-            );
-
-        }
-
-    }
-
-
-
-    /* =====================================================
-       FIND NEARBY AMBULANCES
-       ===================================================== */
-
+    // =====================================================
+    // 3. MAP ACTIONS
+    // =====================================================
     function openAmbulanceSearch() {
+        const query = (latitude !== null && longitude !== null)
+            ? `ambulance+near+${latitude},${longitude}`
+            : "ambulance+near+me";
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, "_blank");
+    }
 
-        console.log(
-            "FIND AMBULANCES CLICKED"
-        );
-
-
-        if (
-            latitude === null ||
-            longitude === null
-        ) {
-
-            alert(
-                "Please select your current location first."
-            );
-
-            return;
-
+    function startDirections() {
+        const origin = (latitude !== null && longitude !== null) ? `${latitude},${longitude}` : "current+location";
+        const destination = prompt("Enter hospital or ambulance service name:") || "nearest hospital emergency";
+        if (destination.trim()) {
+            window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`, "_blank");
         }
-
-
-        var url =
-            "https://www.google.com/maps/search/?api=1" +
-            "&query=" +
-            encodeURIComponent(
-                "ambulance near " +
-                latitude +
-                "," +
-                longitude
-            );
-
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-
-        showAmbulanceDirectionCard();
-
     }
 
+    if (openMapButton) openMapButton.addEventListener("click", openAmbulanceSearch);
+    if (findAmbulanceButton) findAmbulanceButton.addEventListener("click", openAmbulanceSearch);
+    if (directionsButton) directionsButton.addEventListener("click", startDirections);
 
-
-    /* =====================================================
-       AMBULANCE DIRECTION CARD
-       ===================================================== */
-
-    function showAmbulanceDirectionCard() {
-
-        var list =
-            document.getElementById(
-                "ambulanceList"
-            );
-
-
-        if (!list) {
-
-            return;
-
-        }
-
-
-        list.innerHTML = `
-
-            <div class="ambulance-result-card">
-
-                <h3>
-                    🚑 Ambulance Search
-                </h3>
-
-                <p>
-                    Google Maps has opened nearby ambulance
-                    services based on your current location.
-                </p>
-
-                <p>
-                    Select the ambulance service you want
-                    to visit, then use Google Maps directions.
-                </p>
-
-                <div class="ambulance-result-actions">
-
-                    <button
-                        type="button"
-                        id="startDirectionButton"
-                        class="btn btn-primary">
-
-                        🧭 Start Direction
-
-                    </button>
-
-                    <button
-                        type="button"
-                        id="searchAgainButton"
-                        class="btn btn-secondary">
-
-                        🔄 Search Again
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        var directionButton =
-            document.getElementById(
-                "startDirectionButton"
-            );
-
-
-        if (directionButton) {
-
-            directionButton.addEventListener(
-                "click",
-                startDirection
-            );
-
-        }
-
-
-        var searchAgainButton =
-            document.getElementById(
-                "searchAgainButton"
-            );
-
-
-        if (searchAgainButton) {
-
-            searchAgainButton.addEventListener(
-                "click",
-                openAmbulanceSearch
-            );
-
-        }
-
-    }
-
-
-
-    /* =====================================================
-       START DIRECTIONS
-       ===================================================== */
-
-    function startDirection() {
-
-        console.log(
-            "START DIRECTION"
+    // Auto-detect location on load if permission is already granted
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                latitude = pos.coords.latitude;
+                longitude = pos.coords.longitude;
+                const map = document.getElementById("ambulanceMap");
+                if (map) map.src = `https://www.google.com/maps?q=ambulance+hospital+near+${latitude},${longitude}&z=14&output=embed`;
+                const address = document.getElementById("mapAddress");
+                if (address) address.textContent = `📍 Coordinates: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+            },
+            () => {},
+            { timeout: 3000 }
         );
-
-
-        if (
-            latitude === null ||
-            longitude === null
-        ) {
-
-            alert(
-                "Please detect your current location first."
-            );
-
-            return;
-
-        }
-
-
-        var destination =
-            prompt(
-                "Enter the ambulance hospital/service name selected in Google Maps:"
-            );
-
-
-        if (
-            !destination ||
-            destination.trim() === ""
-        ) {
-
-            alert(
-                "Please enter the ambulance or hospital name."
-            );
-
-            return;
-
-        }
-
-
-        var url =
-            "https://www.google.com/maps/dir/?api=1" +
-            "&origin=" +
-            encodeURIComponent(
-                latitude + "," + longitude
-            ) +
-            "&destination=" +
-            encodeURIComponent(
-                destination
-            ) +
-            "&travelmode=driving";
-
-
-        window.open(
-            url,
-            "_blank"
-        );
-
     }
-
-
-
-    /* =====================================================
-       OPEN FULL MAP
-       ===================================================== */
-
-    function openFullMap() {
-
-        if (
-            latitude === null ||
-            longitude === null
-        ) {
-
-            alert(
-                "Please select your current location first."
-            );
-
-            return;
-
-        }
-
-
-        var url =
-            "https://www.google.com/maps/search/?api=1" +
-            "&query=" +
-            encodeURIComponent(
-                "ambulance near " +
-                latitude +
-                "," +
-                longitude
-            );
-
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-    }
-
-
-
-    /* =====================================================
-       DIRECTIONS BUTTON
-       ===================================================== */
-
-    function directions() {
-
-        if (
-            latitude === null ||
-            longitude === null
-        ) {
-
-            alert(
-                "Please detect your current location first."
-            );
-
-            return;
-
-        }
-
-
-        var destination =
-            prompt(
-                "Enter ambulance or hospital name:"
-            );
-
-
-        if (
-            !destination ||
-            destination.trim() === ""
-        ) {
-
-            return;
-
-        }
-
-
-        var url =
-            "https://www.google.com/maps/dir/?api=1" +
-            "&origin=" +
-            encodeURIComponent(
-                latitude + "," + longitude
-            ) +
-            "&destination=" +
-            encodeURIComponent(
-                destination
-            ) +
-            "&travelmode=driving";
-
-
-        window.open(
-            url,
-            "_blank"
-        );
-
-    }
-
-
-
-    /* =====================================================
-       LOCATION BUTTON
-       ===================================================== */
-
-    if (locationButton) {
-
-        locationButton.addEventListener(
-            "click",
-            getLocation
-        );
-
-    }
-
-
-
-    /* =====================================================
-       REFRESH LOCATION
-       ===================================================== */
-
-    if (refreshButton) {
-
-        refreshButton.addEventListener(
-            "click",
-            getLocation
-        );
-
-    }
-
-
-
-    /* =====================================================
-       OPEN FULL MAP BUTTON
-       ===================================================== */
-
-    if (openMapButton) {
-
-        openMapButton.addEventListener(
-            "click",
-            openFullMap
-        );
-
-    }
-
-
-
-    /* =====================================================
-       DIRECTIONS BUTTON
-       ===================================================== */
-
-    if (directionsButton) {
-
-        directionsButton.addEventListener(
-            "click",
-            directions
-        );
-
-    }
-
-
-
-    /* =====================================================
-       INITIAL FIND BUTTON
-       ===================================================== */
-
-    if (findAmbulanceButton) {
-
-        findAmbulanceButton.addEventListener(
-            "click",
-            function () {
-
-                if (
-                    latitude === null ||
-                    longitude === null
-                ) {
-
-                    getLocation();
-
-                }
-
-                else {
-
-                    openAmbulanceSearch();
-
-                }
-
-            }
-        );
-
-    }
-
-
-
-    /* =====================================================
-       EMERGENCY FIND AMBULANCE
-       ===================================================== */
-
-    if (emergencyAmbulanceButton) {
-
-        emergencyAmbulanceButton.addEventListener(
-            "click",
-            function () {
-
-                if (
-                    latitude === null ||
-                    longitude === null
-                ) {
-
-                    alert(
-                        "First select your current location."
-                    );
-
-                    getLocation();
-
-                    return;
-
-                }
-
-
-                openAmbulanceSearch();
-
-            }
-        );
-
-    }
-
-
-
-    /* =====================================================
-       RETRY
-       ===================================================== */
-
-    if (retryButton) {
-
-        retryButton.addEventListener(
-            "click",
-            getLocation
-        );
-
-    }
-
-
 });

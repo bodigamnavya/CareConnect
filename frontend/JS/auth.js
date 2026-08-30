@@ -1,488 +1,287 @@
+// =====================================================
+// CARECONNECT - AUTHENTICATION LOGIC (auth.js)
+// =====================================================
+
 document.addEventListener("DOMContentLoaded", function () {
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
+    const logoutButton = document.getElementById("logoutButton");
 
-const registerForm = document.getElementById("registerForm");
-const loginForm = document.getElementById("loginForm");
-const logoutButton = document.getElementById("logoutButton");
-
-// ============================================
-// API URL
-// ============================================
-
-function getApiBaseUrl() {
-
-    if (
-        typeof CareConnectConfig !== "undefined" &&
-        typeof CareConnectConfig.getApiBaseUrl === "function"
-    ) {
-        return CareConnectConfig.getApiBaseUrl();
+    // ============================================
+    // API URL RESOLVER
+    // ============================================
+    function getApiBaseUrl() {
+        if (window.CareConnectConfig && typeof window.CareConnectConfig.getApiBaseUrl === "function") {
+            return window.CareConnectConfig.getApiBaseUrl();
+        }
+        return "http://127.0.0.1:5000";
     }
 
-    return "http://127.0.0.1:5000";
-}
+    // ============================================
+    // UI MESSAGE DISPLAY HELPER
+    // ============================================
+    function showMessage(elementId, message, type) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
 
+        element.textContent = message;
+        element.style.marginTop = "15px";
+        element.style.padding = "12px";
+        element.style.borderRadius = "8px";
+        element.style.textAlign = "center";
+        element.style.fontSize = "14px";
+        element.style.fontWeight = "500";
 
-// ============================================
-// MESSAGE
-// ============================================
-
-function showMessage(elementId, message, type) {
-
-    const element = document.getElementById(elementId);
-
-    if (!element) return;
-
-    element.textContent = message;
-
-    element.style.marginTop = "15px";
-    element.style.padding = "12px";
-    element.style.borderRadius = "8px";
-    element.style.textAlign = "center";
-
-    if (type === "success") {
-
-        element.style.background = "#dcfce7";
-        element.style.color = "#166534";
-
-    } else {
-
-        element.style.background = "#fee2e2";
-        element.style.color = "#991b1b";
-
+        if (type === "success") {
+            element.style.background = "#dcfce7";
+            element.style.color = "#166534";
+            element.style.border = "1px solid #bbf7d0";
+        } else {
+            element.style.background = "#fee2e2";
+            element.style.color = "#991b1b";
+            element.style.border = "1px solid #fecaca";
+        }
     }
-}
 
+    // ============================================
+    // REGISTRATION HANDLER
+    // ============================================
+    if (registerForm) {
+        registerForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-// ============================================
-// REGISTER
-// ============================================
+            const nameElement = document.getElementById("name");
+            const emailElement = document.getElementById("email");
+            const passwordElement = document.getElementById("password");
+            const confirmPasswordElement = document.getElementById("confirmPassword");
 
-if (registerForm) {
+            if (!nameElement || !emailElement || !passwordElement || !confirmPasswordElement) {
+                showMessage("registerMessage", "Registration form fields are missing.", "error");
+                return;
+            }
 
-    registerForm.addEventListener("submit", async function (event) {
+            const name = nameElement.value.trim();
+            const email = emailElement.value.trim();
+            const password = passwordElement.value;
+            const confirmPassword = confirmPasswordElement.value;
+            const submitBtn = registerForm.querySelector("button[type='submit']");
 
-        event.preventDefault();
+            // Form validation
+            if (!name) {
+                showMessage("registerMessage", "Please enter your full name.", "error");
+                return;
+            }
 
-        const name = document
-            .getElementById("name")
-            .value
-            .trim();
+            if (!email) {
+                showMessage("registerMessage", "Please enter your email address.", "error");
+                return;
+            }
 
-        const email = document
-            .getElementById("email")
-            .value
-            .trim();
+            if (password.length < 6) {
+                showMessage("registerMessage", "Password must contain at least 6 characters.", "error");
+                return;
+            }
 
-        const password = document
-            .getElementById("password")
-            .value;
+            if (password !== confirmPassword) {
+                showMessage("registerMessage", "Passwords do not match.", "error");
+                return;
+            }
 
-        const confirmPassword = document
-            .getElementById("confirmPassword")
-            .value;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Creating Account...";
+            }
 
-        const button =
-            registerForm.querySelector(
-                "button[type='submit']"
-            );
+            try {
+                const apiUrl = `${getApiBaseUrl()}/api/register`;
+                console.log("REGISTER API Request:", apiUrl);
 
-
-        // ----------------------------------------
-        // VALIDATION
-        // ----------------------------------------
-
-        if (!name) {
-
-            showMessage(
-                "registerMessage",
-                "Please enter your full name.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (!email) {
-
-            showMessage(
-                "registerMessage",
-                "Please enter your email address.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (password.length < 6) {
-
-            showMessage(
-                "registerMessage",
-                "Password must contain at least 6 characters.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (password !== confirmPassword) {
-
-            showMessage(
-                "registerMessage",
-                "Passwords do not match.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        // ----------------------------------------
-        // BUTTON
-        // ----------------------------------------
-
-        if (button) {
-
-            button.disabled = true;
-            button.textContent = "Creating Account...";
-
-        }
-
-
-        try {
-
-            const response = await fetch(
-                getApiBaseUrl() + "/api/register",
-                {
+                const response = await fetch(apiUrl, {
                     method: "POST",
-
                     headers: {
                         "Content-Type": "application/json"
                     },
-
                     body: JSON.stringify({
                         name: name,
                         email: email,
                         password: password
                     })
-                }
-            );
+                });
 
+                const data = await response.json();
+                console.log("REGISTER Response:", response.status, data);
 
-            const data = await response.json();
-
-
-            console.log(
-                "REGISTER RESPONSE:",
-                response.status,
-                data
-            );
-
-
-            if (
-                response.ok &&
-                data.success === true
-            ) {
-
-                showMessage(
-                    "registerMessage",
-                    "Account created successfully! Redirecting to login...",
-                    "success"
-                );
-
-
-                if (data.user) {
-
-                    localStorage.setItem(
-                        "careconnect_user",
-                        JSON.stringify(data.user)
+                if (response.ok && data.success) {
+                    showMessage(
+                        "registerMessage",
+                        "Account created successfully! Redirecting to login...",
+                        "success"
                     );
 
-                }
+                    if (window.CareConnectConfig && typeof window.CareConnectConfig.setSession === "function") {
+                        window.CareConnectConfig.setSession(data.token, data.user);
+                    } else {
+                        if (data.token) {
+                            localStorage.setItem("careconnect_token", data.token);
+                            localStorage.setItem("token", data.token);
+                        }
+                        if (data.user) {
+                            localStorage.setItem("careconnect_user", JSON.stringify(data.user));
+                            localStorage.setItem("user", JSON.stringify(data.user));
+                        }
+                    }
 
-
-                if (data.token) {
-
-                    localStorage.setItem(
-                        "careconnect_token",
-                        data.token
+                    setTimeout(function () {
+                        window.location.href = "login.html";
+                    }, 1200);
+                } else {
+                    showMessage(
+                        "registerMessage",
+                        data.message || data.error || "Unable to create account.",
+                        "error"
                     );
-
                 }
-
-
-                setTimeout(function () {
-
-                    window.location.href =
-                        "login.html";
-
-                }, 1500);
-
-
-            } else {
-
+            } catch (error) {
+                console.error("REGISTER ERROR:", error);
                 showMessage(
                     "registerMessage",
-                    data.message ||
-                    data.error ||
-                    "Unable to create account.",
+                    "Cannot connect to CareConnect server. Please check that the backend is running.",
                     "error"
                 );
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Create Account";
+                }
+            }
+        });
+    }
 
+    // ============================================
+    // LOGIN HANDLER
+    // ============================================
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const emailElement = document.getElementById("loginEmail") || document.getElementById("email");
+            const passwordElement = document.getElementById("loginPassword") || document.getElementById("password");
+
+            if (!emailElement || !passwordElement) {
+                showMessage("loginMessage", "Login form fields are missing.", "error");
+                return;
             }
 
+            const email = emailElement.value.trim();
+            const password = passwordElement.value;
+            const submitBtn = loginForm.querySelector("button[type='submit']");
 
-        } catch (error) {
-
-            console.error(
-                "REGISTER ERROR:",
-                error
-            );
-
-
-            showMessage(
-                "registerMessage",
-                "Cannot connect to CareConnect server. Please make sure the backend is running.",
-                "error"
-            );
-
-
-        } finally {
-
-            if (button) {
-
-                button.disabled = false;
-                button.textContent = "Create Account";
-
+            if (!email || !password) {
+                showMessage("loginMessage", "Please enter your email and password.", "error");
+                return;
             }
 
-        }
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Signing In...";
+            }
 
-    });
+            try {
+                const apiUrl = `${getApiBaseUrl()}/api/login`;
+                console.log("LOGIN API Request:", apiUrl);
 
-}
-
-
-// ============================================
-// LOGIN
-// ============================================
-
-if (loginForm) {
-
-    loginForm.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-
-        const email =
-            document
-                .getElementById("loginEmail")
-                .value
-                .trim();
-
-
-        const password =
-            document
-                .getElementById("loginPassword")
-                .value;
-
-
-        const button =
-            loginForm.querySelector(
-                "button[type='submit']"
-            );
-
-
-        if (!email || !password) {
-
-            showMessage(
-                "loginMessage",
-                "Please enter your email and password.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (button) {
-
-            button.disabled = true;
-            button.textContent = "Signing In...";
-
-        }
-
-
-        try {
-
-            const response = await fetch(
-                getApiBaseUrl() + "/api/login",
-                {
+                const response = await fetch(apiUrl, {
                     method: "POST",
-
                     headers: {
                         "Content-Type": "application/json"
                     },
-
                     body: JSON.stringify({
                         email: email,
                         password: password
                     })
-                }
-            );
+                });
 
+                const data = await response.json();
+                console.log("LOGIN Response:", response.status, data);
 
-            const data = await response.json();
+                if (response.ok && data.success) {
+                    if (window.CareConnectConfig && typeof window.CareConnectConfig.setSession === "function") {
+                        window.CareConnectConfig.setSession(data.token, data.user);
+                    } else {
+                        if (data.token) {
+                            localStorage.setItem("careconnect_token", data.token);
+                            localStorage.setItem("token", data.token);
+                        }
+                        if (data.user) {
+                            localStorage.setItem("careconnect_user", JSON.stringify(data.user));
+                            localStorage.setItem("user", JSON.stringify(data.user));
+                        }
+                    }
 
-
-            console.log(
-                "LOGIN RESPONSE:",
-                response.status,
-                data
-            );
-
-
-            if (
-                response.ok &&
-                data.success === true
-            ) {
-
-                if (data.token) {
-
-                    localStorage.setItem(
-                        "careconnect_token",
-                        data.token
+                    showMessage(
+                        "loginMessage",
+                        "Login successful! Opening dashboard...",
+                        "success"
                     );
 
-                }
-
-
-                if (data.user) {
-
-                    localStorage.setItem(
-                        "careconnect_user",
-                        JSON.stringify(data.user)
+                    setTimeout(function () {
+                        window.location.href = "dashboard.html";
+                    }, 800);
+                } else {
+                    showMessage(
+                        "loginMessage",
+                        data.message || data.error || "Invalid email or password.",
+                        "error"
                     );
-
                 }
-
-
+            } catch (error) {
+                console.error("LOGIN ERROR:", error);
                 showMessage(
                     "loginMessage",
-                    "Login successful! Opening dashboard...",
-                    "success"
-                );
-
-
-                setTimeout(function () {
-
-                    window.location.href =
-                        "dashboard.html";
-
-                }, 1000);
-
-
-            } else {
-
-                showMessage(
-                    "loginMessage",
-                    data.message ||
-                    data.error ||
-                    "Invalid email or password.",
+                    "Cannot connect to CareConnect server. Please check that the backend is running.",
                     "error"
                 );
-
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Sign In";
+                }
             }
+        });
+    }
 
-
-        } catch (error) {
-
-            console.error(
-                "LOGIN ERROR:",
-                error
-            );
-
-
-            showMessage(
-                "loginMessage",
-                "Cannot connect to CareConnect server.",
-                "error"
-            );
-
-
-        } finally {
-
-            if (button) {
-
-                button.disabled = false;
-                button.textContent = "Sign In";
-
-            }
-
-        }
-
-    });
-
-}
-
-
-// ============================================
-// LOGOUT
-// ============================================
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        async function (event) {
-
+    // ============================================
+    // LOGOUT HANDLER
+    // ============================================
+    if (logoutButton) {
+        logoutButton.addEventListener("click", async function (event) {
             event.preventDefault();
 
-
             try {
+                const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+                const headers = { "Content-Type": "application/json" };
+                if (token) {
+                    headers["Authorization"] = "Bearer " + token;
+                }
 
-                await fetch(
-                    getApiBaseUrl() + "/api/logout",
-                    {
-                        method: "POST",
-
-                        headers:
-                            typeof CareConnectConfig !== "undefined" &&
-                            CareConnectConfig.getAuthHeaders
-                                ? CareConnectConfig.getAuthHeaders()
-                                : {}
-                    }
-                );
-
+                await fetch(`${getApiBaseUrl()}/api/logout`, {
+                    method: "POST",
+                    headers: headers
+                });
             } catch (error) {
-
-                console.warn(
-                    "Logout request failed:",
-                    error
-                );
-
+                console.warn("Logout request failed:", error);
             }
 
+            if (window.CareConnectConfig && typeof window.CareConnectConfig.clearSession === "function") {
+                window.CareConnectConfig.clearSession();
+            } else {
+                localStorage.removeItem("careconnect_token");
+                localStorage.removeItem("careconnect_user");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+            }
 
-            localStorage.removeItem(
-                "careconnect_token"
-            );
-
-            localStorage.removeItem(
-                "careconnect_user"
-            );
-
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-
-
-            window.location.href =
-                "login.html";
-
-        }
-    );
-
-}
-
+            window.location.href = "login.html";
+        });
+    }
 });

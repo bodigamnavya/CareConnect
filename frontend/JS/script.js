@@ -1,843 +1,352 @@
 // =====================================================
-// CARECONNECT - FRONTEND SCRIPT
+// CARECONNECT - GLOBAL SCRIPT (script.js)
 // =====================================================
 
-// LIVE RENDER BACKEND
-const API_BASE_URL = "https://careconnect-back-qf7e.onrender.com";
-
-
-// =====================================================
-// REGISTER
-// =====================================================
-
-const registerForm = document.getElementById("registerForm");
-
-if (registerForm) {
-
-    registerForm.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const name = document.getElementById("name").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
-
-        const message =
-            document.getElementById("registerMessage");
-
-        message.textContent = "Creating account...";
-
-        if (!name || !email || !password || !confirmPassword) {
-
-            message.textContent =
-                "Please fill all fields.";
-
-            return;
-        }
-
-        if (password.length < 6) {
-
-            message.textContent =
-                "Password must contain at least 6 characters.";
-
-            return;
-        }
-
-        if (password !== confirmPassword) {
-
-            message.textContent =
-                "Passwords do not match.";
-
-            return;
-        }
-
-        try {
-
-            const response = await fetch(
-                `${API_BASE_URL}/api/register`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        name: name,
-                        email: email,
-                        password: password
-                    })
-                }
-            );
-
-            const data = await response.json();
-
-            console.log("Register response:", data);
-
-            if (response.ok && data.success) {
-
-                message.textContent =
-                    "Registration successful! Redirecting to login...";
-
-                registerForm.reset();
-
-                setTimeout(function () {
-
-                    window.location.href = "login.html";
-
-                }, 1000);
-
-            } else {
-
-                message.textContent =
-                    data.message || "Registration failed.";
-
-            }
-
-        } catch (error) {
-
-            console.error("Registration error:", error);
-
-            message.textContent =
-                "Unable to connect to server.";
-
-        }
-
-    });
-
-}
-
-
-// =====================================================
-// LOGIN
-// =====================================================
-
-const loginForm = document.getElementById("loginForm");
-
-if (loginForm) {
-
-    loginForm.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const email =
-            document.getElementById("loginEmail").value.trim();
-
-        const password =
-            document.getElementById("loginPassword").value;
-
-        const message =
-            document.getElementById("loginMessage");
-
-        if (!email || !password) {
-
-            message.textContent =
-                "Please enter email and password.";
-
-            return;
-        }
-
-        message.textContent = "Logging in...";
-
-        try {
-
-            console.log("Login request started");
-
-            const response = await fetch(
-                `${API_BASE_URL}/api/login`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                }
-            );
-
-            console.log("Login status:", response.status);
-
-            const data = await response.json();
-
-            console.log("Login response:", data);
-
-            if (response.ok && data.success) {
-
-                // Save JWT token
-                localStorage.setItem(
-                    "token",
-                    data.token
-                );
-
-                // Save user information
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(data.user)
-                );
-
-                message.textContent =
-                    "Login successful! Opening dashboard...";
-
-                console.log(
-                    "Token saved:",
-                    localStorage.getItem("token")
-                );
-
-                setTimeout(function () {
-
-                    window.location.href = "./dashboard.html";
-
-                }, 800);
-
-            } else {
-
-                message.textContent =
-                    data.message || "Invalid email or password.";
-
-            }
-
-        } catch (error) {
-
-            console.error("Login error:", error);
-
-            message.textContent =
-                "Unable to connect to server.";
-
-        }
-
-    });
-
-}
-
-
-// =====================================================
-// DASHBOARD AUTHENTICATION
-// =====================================================
-
-const userName =
-    document.getElementById("userName");
-
-const userEmail =
-    document.getElementById("userEmail");
-
-const welcomeMessage =
-    document.getElementById("welcomeMessage");
-
-if (userName || userEmail || welcomeMessage) {
-
-    const token =
-        localStorage.getItem("token");
-
-    const userData =
-        localStorage.getItem("user");
-
-    if (!token || !userData) {
-
-        window.location.href = "./login.html";
-
-    } else {
-
-        try {
-
-            const user =
-                JSON.parse(userData);
-
-            if (userName) {
-
-                userName.textContent =
-                    user.name || "User";
-
-            }
-
-            if (userEmail) {
-
-                userEmail.textContent =
-                    user.email || "";
-
-            }
-
-            if (welcomeMessage) {
-
-                welcomeMessage.textContent =
-                    `Hello ${user.name || "User"}! Welcome back to CareConnect.`;
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Dashboard user data error:",
-                error
-            );
-
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-
-            window.location.href = "./login.html";
-
-        }
-
+function getApiBaseUrl() {
+    if (window.CareConnectConfig && typeof window.CareConnectConfig.getApiBaseUrl === "function") {
+        return window.CareConnectConfig.getApiBaseUrl();
     }
-
+    return "http://127.0.0.1:5000";
 }
 
+// =====================================================
+// REGISTER (Fallback support if auth.js is not loaded)
+// =====================================================
+const registerForm = document.getElementById("registerForm");
+if (registerForm && !window.__auth_registered) {
+    window.__auth_registered = true;
+}
+
+// =====================================================
+// DASHBOARD AUTHENTICATION & GREETING
+// =====================================================
+const userName = document.getElementById("userName");
+const userEmail = document.getElementById("userEmail");
+const welcomeMessage = document.getElementById("welcomeMessage");
+const userGreeting = document.getElementById("userGreeting");
+
+if (userName || userEmail || welcomeMessage || userGreeting) {
+    const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+    const userData = localStorage.getItem("careconnect_user") || localStorage.getItem("user");
+
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            if (userName) userName.textContent = user.name || "User";
+            if (userEmail) userEmail.textContent = user.email || "";
+            if (welcomeMessage) welcomeMessage.textContent = `Hello ${user.name || "User"}! Welcome back to CareConnect.`;
+            if (userGreeting) userGreeting.textContent = `Welcome back, ${user.name || "User"}`;
+        } catch (error) {
+            console.error("Dashboard user data error:", error);
+        }
+    }
+}
 
 // =====================================================
 // LOGOUT
 // =====================================================
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-if (logoutButton) {
-
-    logoutButton.addEventListener("click", function (event) {
-
+const logoutBtn = document.getElementById("logoutButton");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", function (event) {
         event.preventDefault();
-
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        window.location.href = "./login.html";
-
+        if (window.CareConnectConfig && typeof window.CareConnectConfig.clearSession === "function") {
+            window.CareConnectConfig.clearSession();
+        } else {
+            localStorage.removeItem("careconnect_token");
+            localStorage.removeItem("careconnect_user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+        }
+        window.location.href = "login.html";
     });
-
 }
-
 
 // =====================================================
 // MEDICAL PROFILE
 // =====================================================
-
-const medicalProfileForm =
-    document.getElementById("medicalProfileForm");
-
+const medicalProfileForm = document.getElementById("medicalProfileForm");
 if (medicalProfileForm) {
-
-    medicalProfileForm.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            const token =
-                localStorage.getItem("token");
-
-            const message =
-                document.getElementById("medicalMessage");
-
-            if (!token) {
-
-                window.location.href = "./login.html";
-
-                return;
-            }
-
-            const bloodGroup =
-                document.getElementById("bloodGroup").value;
-
-            const phone =
-                document.getElementById("phone").value.trim();
-
-            const allergies =
-                document.getElementById("allergies").value.trim();
-
-            const medications =
-                document.getElementById("medications").value.trim();
-
-            const conditions =
-                document.getElementById("conditions").value.trim();
-
-            const emergencyContact =
-                document.getElementById("emergencyContact")
-                    .value
-                    .trim();
-
-            message.textContent =
-                "Saving medical profile...";
-
-            try {
-
-                const response = await fetch(
-                    `${API_BASE_URL}/api/medical-profile`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": "Bearer " + token
-                        },
-
-                        body: JSON.stringify({
-
-                            blood_group: bloodGroup,
-
-                            phone: phone,
-
-                            allergies: allergies,
-
-                            medications: medications,
-
-                            conditions: conditions,
-
-                            emergency_contact:
-                                emergencyContact
-
-                        })
-                    }
-                );
-
-                const data =
-                    await response.json();
-
-                console.log(
-                    "Medical profile response:",
-                    data
-                );
-
-                if (response.ok && data.success) {
-
-                    message.textContent =
-                        "Medical profile saved successfully.";
-
-                } else {
-
-                    message.textContent =
-                        data.message ||
-                        "Unable to save medical profile.";
-
+    // Populate existing profile data if available
+    (async function loadExistingMedicalProfile() {
+        const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+        if (!token) return;
+        try {
+            const response = await fetch(`${getApiBaseUrl()}/api/profile`, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
                 }
-
-            } catch (error) {
-
-                console.error(
-                    "Medical profile error:",
-                    error
-                );
-
-                message.textContent =
-                    "Unable to connect to server.";
-
+            });
+            const data = await response.json();
+            if (response.ok && data.success && data.profile) {
+                const p = data.profile;
+                if (document.getElementById("bloodGroup") && p.blood_group) document.getElementById("bloodGroup").value = p.blood_group;
+                if (document.getElementById("phone") && (p.emergency_phone || p.phone)) document.getElementById("phone").value = p.emergency_phone || p.phone;
+                if (document.getElementById("allergies") && p.allergies) document.getElementById("allergies").value = p.allergies;
+                if (document.getElementById("medications") && p.medications) document.getElementById("medications").value = p.medications;
+                if (document.getElementById("conditions") && p.conditions) document.getElementById("conditions").value = p.conditions;
+                if (document.getElementById("emergencyContact") && p.emergency_contact) document.getElementById("emergencyContact").value = p.emergency_contact;
             }
-
+        } catch (err) {
+            console.warn("Could not pre-fetch medical profile:", err);
         }
-    );
+    })();
 
+    medicalProfileForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+        const message = document.getElementById("medicalMessage");
+
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        const bloodGroup = document.getElementById("bloodGroup") ? document.getElementById("bloodGroup").value : "";
+        const phone = document.getElementById("phone") ? document.getElementById("phone").value.trim() : "";
+        const allergies = document.getElementById("allergies") ? document.getElementById("allergies").value.trim() : "";
+        const medications = document.getElementById("medications") ? document.getElementById("medications").value.trim() : "";
+        const conditions = document.getElementById("conditions") ? document.getElementById("conditions").value.trim() : "";
+        const emergencyContact = document.getElementById("emergencyContact") ? document.getElementById("emergencyContact").value.trim() : "";
+
+        if (message) {
+            message.textContent = "Saving medical profile...";
+            message.style.color = "#2563eb";
+        }
+
+        try {
+            const response = await fetch(`${getApiBaseUrl()}/api/medical-profile`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    blood_group: bloodGroup,
+                    phone: phone,
+                    allergies: allergies,
+                    medications: medications,
+                    conditions: conditions,
+                    emergency_contact: emergencyContact
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                if (message) {
+                    message.textContent = "Medical profile saved successfully.";
+                    message.style.color = "#166534";
+                }
+            } else {
+                if (message) {
+                    message.textContent = data.message || "Unable to save medical profile.";
+                    message.style.color = "#991b1b";
+                }
+            }
+        } catch (error) {
+            console.error("Medical profile error:", error);
+            if (message) {
+                message.textContent = "Cannot connect to CareConnect server. Please check that the backend is running.";
+                message.style.color = "#991b1b";
+            }
+        }
+    });
 }
-
 
 // =====================================================
 // MEDICAL QR PASSPORT
 // =====================================================
-
-const generateQRButton =
-    document.getElementById("generateQRButton");
-
+const generateQRButton = document.getElementById("generateQRButton");
 if (generateQRButton) {
+    generateQRButton.addEventListener("click", async function () {
+        const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+        const qrMessage = document.getElementById("qrMessage");
+        const qrContainer = document.getElementById("qrContainer");
 
-    generateQRButton.addEventListener(
-        "click",
-        async function () {
-
-            const token =
-                localStorage.getItem("token");
-
-            const qrMessage =
-                document.getElementById("qrMessage");
-
-            const qrContainer =
-                document.getElementById("qrContainer");
-
-            if (!token) {
-
-                window.location.href = "./login.html";
-
-                return;
-            }
-
-            qrMessage.textContent =
-                "Generating QR code...";
-
-            qrContainer.innerHTML = "";
-
-            try {
-
-                const response = await fetch(
-                    `${API_BASE_URL}/api/generate-qr`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            "Authorization":
-                                "Bearer " + token
-                        }
-                    }
-                );
-
-                const data =
-                    await response.json();
-
-                console.log(
-                    "QR response:",
-                    data
-                );
-
-                if (response.ok && data.success) {
-
-                    qrMessage.textContent =
-                        data.message ||
-                        "QR generated successfully.";
-
-                    if (data.qr_code) {
-
-                        const image =
-                            document.createElement("img");
-
-                        image.src =
-                            "data:image/png;base64," +
-                            data.qr_code;
-
-                        image.alt =
-                            "CareConnect Medical QR";
-
-                        image.style.width = "250px";
-                        image.style.height = "250px";
-
-                        qrContainer.appendChild(image);
-
-                    } else {
-
-                        qrMessage.textContent =
-                            "QR code was not returned by server.";
-
-                    }
-
-                } else {
-
-                    qrMessage.textContent =
-                        data.message ||
-                        "Unable to generate QR.";
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "QR error:",
-                    error
-                );
-
-                qrMessage.textContent =
-                    "Unable to connect to server.";
-
-            }
-
+        if (!token) {
+            window.location.href = "login.html";
+            return;
         }
-    );
 
+        if (qrMessage) {
+            qrMessage.textContent = "Generating QR code...";
+            qrMessage.style.color = "#2563eb";
+        }
+        if (qrContainer) qrContainer.innerHTML = "";
+
+        try {
+            const response = await fetch(`${getApiBaseUrl()}/api/generate-qr`, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                if (qrMessage) {
+                    qrMessage.textContent = data.message || "QR generated successfully.";
+                    qrMessage.style.color = "#166534";
+                }
+                if (data.qr_code && qrContainer) {
+                    const image = document.createElement("img");
+                    image.src = "data:image/png;base64," + data.qr_code;
+                    image.alt = "CareConnect Medical QR";
+                    image.style.width = "250px";
+                    image.style.height = "250px";
+                    image.style.borderRadius = "12px";
+                    image.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
+                    image.style.marginTop = "15px";
+                    qrContainer.appendChild(image);
+                }
+            } else {
+                if (qrMessage) {
+                    qrMessage.textContent = data.message || "Unable to generate QR. Please ensure your medical profile is filled.";
+                    qrMessage.style.color = "#991b1b";
+                }
+            }
+        } catch (error) {
+            console.error("QR error:", error);
+            if (qrMessage) {
+                qrMessage.textContent = "Cannot connect to CareConnect server. Please check that the backend is running.";
+                qrMessage.style.color = "#991b1b";
+            }
+        }
+    });
 }
-
 
 // =====================================================
 // EMERGENCY SOS
 // =====================================================
-
-const sosButton =
-    document.getElementById("sosButton");
-
+const sosButton = document.getElementById("sosButton");
 if (sosButton) {
+    sosButton.addEventListener("click", async function () {
+        const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
+        const sosMessage = document.getElementById("sosMessage");
 
-    sosButton.addEventListener(
-        "click",
-        async function () {
-
-            const token =
-                localStorage.getItem("token");
-
-            const sosMessage =
-                document.getElementById("sosMessage");
-
-            if (!token) {
-
-                window.location.href = "./login.html";
-
-                return;
-            }
-
-            if (!navigator.geolocation) {
-
-                sosMessage.textContent =
-                    "Geolocation is not supported.";
-
-                return;
-            }
-
-            sosButton.disabled = true;
-
-            sosMessage.textContent =
-                "Getting your location...";
-
-            navigator.geolocation.getCurrentPosition(
-
-                async function (position) {
-
-                    try {
-
-                        const latitude =
-                            position.coords.latitude;
-
-                        const longitude =
-                            position.coords.longitude;
-
-                        sosMessage.textContent =
-                            "Activating Emergency SOS...";
-
-                        const response = await fetch(
-                            `${API_BASE_URL}/api/sos`,
-                            {
-                                method: "POST",
-
-                                headers: {
-                                    "Content-Type":
-                                        "application/json",
-
-                                    "Authorization":
-                                        "Bearer " + token
-                                },
-
-                                body: JSON.stringify({
-
-                                    latitude: latitude,
-
-                                    longitude: longitude,
-
-                                    message:
-                                        "Emergency! I need medical assistance."
-
-                                })
-                            }
-                        );
-
-                        const data =
-                            await response.json();
-
-                        console.log(
-                            "SOS response:",
-                            data
-                        );
-
-                        if (response.ok && data.success) {
-
-                            sosMessage.textContent =
-                                "🚨 Emergency SOS activated successfully!";
-
-                        } else {
-
-                            sosMessage.textContent =
-                                data.message ||
-                                "SOS activation failed.";
-
-                        }
-
-                    } catch (error) {
-
-                        console.error(
-                            "SOS error:",
-                            error
-                        );
-
-                        sosMessage.textContent =
-                            "Unable to connect to server.";
-
-                    } finally {
-
-                        sosButton.disabled = false;
-
-                    }
-
-                },
-
-                function (error) {
-
-                    console.error(
-                        "Location error:",
-                        error
-                    );
-
-                    if (error.code === 1) {
-
-                        sosMessage.textContent =
-                            "Please allow location access.";
-
-                    } else {
-
-                        sosMessage.textContent =
-                            "Unable to get your location.";
-
-                    }
-
-                    sosButton.disabled = false;
-
-                },
-
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-
-            );
-
+        if (!token) {
+            window.location.href = "login.html";
+            return;
         }
-    );
 
+        sosButton.disabled = true;
+        if (sosMessage) {
+            sosMessage.textContent = "Getting your location...";
+            sosMessage.style.color = "#2563eb";
+        }
+
+        async function triggerSOS(latitude = null, longitude = null) {
+            if (sosMessage) sosMessage.textContent = "Activating Emergency SOS...";
+
+            try {
+                const response = await fetch(`${getApiBaseUrl()}/api/sos`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude,
+                        message: "Emergency! I need medical assistance."
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    if (sosMessage) {
+                        sosMessage.textContent = "🚨 Emergency SOS activated successfully! Emergency broadcast logged.";
+                        sosMessage.style.color = "#166534";
+                    }
+                } else {
+                    if (sosMessage) {
+                        sosMessage.textContent = data.message || "SOS activation failed.";
+                        sosMessage.style.color = "#991b1b";
+                    }
+                }
+            } catch (error) {
+                console.error("SOS error:", error);
+                if (sosMessage) {
+                    sosMessage.textContent = "Cannot connect to CareConnect server.";
+                    sosMessage.style.color = "#991b1b";
+                }
+            } finally {
+                sosButton.disabled = false;
+            }
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    triggerSOS(position.coords.latitude, position.coords.longitude);
+                },
+                function (error) {
+                    console.warn("Location error:", error);
+                    triggerSOS(null, null);
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        } else {
+            triggerSOS(null, null);
+        }
+    });
 }
-
 
 // =====================================================
 // SOS HISTORY
 // =====================================================
-
-const historyContainer =
-    document.getElementById("historyContainer");
-
+const historyContainer = document.getElementById("historyContainer");
 if (historyContainer) {
-
-    const token =
-        localStorage.getItem("token");
-
+    const token = localStorage.getItem("careconnect_token") || localStorage.getItem("token");
     if (!token) {
-
-        window.location.href = "./login.html";
-
+        window.location.href = "login.html";
     } else {
-
         async function loadSOSHistory() {
-
-            historyContainer.innerHTML =
-                "<p>Loading SOS history...</p>";
-
+            historyContainer.innerHTML = "<p>Loading SOS history...</p>";
             try {
-
-                const response = await fetch(
-                    `${API_BASE_URL}/api/sos/history`,
-                    {
-                        method: "GET",
-
-                        headers: {
-                            "Authorization":
-                                "Bearer " + token
-                        }
+                const response = await fetch(`${getApiBaseUrl()}/api/sos/history`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token
                     }
-                );
+                });
 
-                const data =
-                    await response.json();
-
-                console.log(
-                    "SOS history response:",
-                    data
-                );
-
+                const data = await response.json();
                 if (response.ok && data.success) {
-
-                    if (
-                        !data.events ||
-                        data.events.length === 0
-                    ) {
-
-                        historyContainer.innerHTML =
-                            "<p>No SOS history found.</p>";
-
+                    if (!data.events || data.events.length === 0) {
+                        historyContainer.innerHTML = "<p style='color:#64748b;'>No SOS emergency events recorded yet.</p>";
                         return;
                     }
 
                     historyContainer.innerHTML = "";
-
                     data.events.forEach(function (event) {
+                        const item = document.createElement("div");
+                        item.className = "sos-history-item";
+                        item.style.background = "#ffffff";
+                        item.style.padding = "20px";
+                        item.style.borderRadius = "12px";
+                        item.style.boxShadow = "0 2px 10px rgba(0,0,0,0.06)";
+                        item.style.marginBottom = "15px";
 
-                        const item =
-                            document.createElement("div");
-
-                        item.className =
-                            "sos-history-item";
-
-                        const createdAt =
-                            event.created_at
-                                ? new Date(
-                                    event.created_at
-                                ).toLocaleString()
-                                : "N/A";
+                        const createdAt = event.created_at ? new Date(event.created_at).toLocaleString() : "N/A";
 
                         item.innerHTML = `
-
-                            <h3>
-                                🚨 Emergency SOS
-                            </h3>
-
-                            <p>
-                                <strong>Status:</strong>
-                                ${event.status || "N/A"}
-                            </p>
-
-                            <p>
-                                <strong>Message:</strong>
-                                ${event.message || "N/A"}
-                            </p>
-
-                            <p>
-                                <strong>Latitude:</strong>
-                                ${event.latitude ?? "N/A"}
-                            </p>
-
-                            <p>
-                                <strong>Longitude:</strong>
-                                ${event.longitude ?? "N/A"}
-                            </p>
-
-                            <p>
-                                <strong>Date:</strong>
-                                ${createdAt}
-                            </p>
-
+                            <h3 style="margin:0 0 10px 0; color:#dc2626;">🚨 Emergency SOS Trigger</h3>
+                            <p style="margin:4px 0;"><strong>Status:</strong> <span style="color:#16a34a; font-weight:600;">${event.status || "ACTIVE"}</span></p>
+                            <p style="margin:4px 0;"><strong>Message:</strong> ${event.message || "Emergency assistance requested."}</p>
+                            <p style="margin:4px 0;"><strong>Coordinates:</strong> ${event.latitude ?? "N/A"}, ${event.longitude ?? "N/A"}</p>
+                            <p style="margin:4px 0; font-size:13px; color:#64748b;"><strong>Timestamp:</strong> ${createdAt}</p>
                         `;
-
                         historyContainer.appendChild(item);
-
                     });
-
                 } else {
-
-                    historyContainer.innerHTML =
-                        `<p>${
-                            data.message ||
-                            "Unable to load SOS history."
-                        }</p>`;
-
+                    historyContainer.innerHTML = `<p style='color:#991b1b;'>${data.message || "Unable to load SOS history."}</p>`;
                 }
-
             } catch (error) {
-
-                console.error(
-                    "SOS history error:",
-                    error
-                );
-
-                historyContainer.innerHTML =
-                    "<p>Unable to connect to server.</p>";
-
+                console.error("SOS history error:", error);
+                historyContainer.innerHTML = "<p style='color:#991b1b;'>Cannot connect to CareConnect server.</p>";
             }
-
         }
-
         loadSOSHistory();
-
     }
-
 }

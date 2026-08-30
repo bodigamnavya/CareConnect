@@ -32,7 +32,7 @@ def get_db_connection():
     return conn, "sqlite"
 
 def init_db():
-    """Initializes the database schema if tables do not exist."""
+    """Initializes the database schema if tables do not exist and applies migrations."""
     conn, db_type = get_db_connection()
     cursor = conn.cursor()
 
@@ -48,6 +48,9 @@ def init_db():
                 blood_group VARCHAR(10),
                 emergency_contact VARCHAR(120),
                 emergency_phone VARCHAR(30),
+                allergies TEXT,
+                medications TEXT,
+                conditions TEXT,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
@@ -117,8 +120,70 @@ def init_db():
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             );
             CREATE INDEX IF NOT EXISTS idx_conv_messages_conv_id ON conversation_messages(conversation_id);
+
+            CREATE TABLE IF NOT EXISTS medical_profiles (
+                id VARCHAR(64) PRIMARY KEY,
+                user_id VARCHAR(64) NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+                blood_group VARCHAR(10) NOT NULL,
+                phone VARCHAR(30) NOT NULL,
+                allergies TEXT,
+                medications TEXT,
+                conditions TEXT,
+                emergency_contact VARCHAR(120) NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS qr_tokens (
+                id VARCHAR(64) PRIMARY KEY,
+                token VARCHAR(64) UNIQUE NOT NULL,
+                user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_qr_tokens_token ON qr_tokens(token);
+
+            CREATE TABLE IF NOT EXISTS sos_events (
+                id VARCHAR(64) PRIMARY KEY,
+                user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                latitude FLOAT,
+                longitude FLOAT,
+                message TEXT NOT NULL,
+                status VARCHAR(30) DEFAULT 'ACTIVE',
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_sos_events_user ON sos_events(user_id);
+
+            CREATE TABLE IF NOT EXISTS ambulance_requests (
+                id VARCHAR(64) PRIMARY KEY,
+                user_id VARCHAR(64) REFERENCES users(id) ON DELETE SET NULL,
+                patient_name VARCHAR(120) NOT NULL,
+                contact_number VARCHAR(30) NOT NULL,
+                emergency_type VARCHAR(50) NOT NULL,
+                current_location TEXT NOT NULL,
+                additional_details TEXT,
+                status VARCHAR(30) DEFAULT 'REQUESTED',
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_ambulance_user ON ambulance_requests(user_id);
+
+            CREATE TABLE IF NOT EXISTS access_logs (
+                id VARCHAR(64) PRIMARY KEY,
+                user_id VARCHAR(64) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                access_type VARCHAR(50) NOT NULL,
+                accessed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
         """)
         conn.commit()
+
+        # Check PostgreSQL migrations
+        for col, col_type in [("allergies", "TEXT"), ("medications", "TEXT"), ("conditions", "TEXT")]:
+            try:
+                cursor.execute(f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col} {col_type};")
+                conn.commit()
+            except Exception:
+                conn.rollback()
+
     else:
         # Create SQLite tables
         cursor.executescript("""
@@ -131,6 +196,9 @@ def init_db():
                 blood_group TEXT,
                 emergency_contact TEXT,
                 emergency_phone TEXT,
+                allergies TEXT,
+                medications TEXT,
+                conditions TEXT,
                 created_at TEXT DEFAULT (datetime('now')),
                 updated_at TEXT DEFAULT (datetime('now'))
             );
@@ -200,8 +268,72 @@ def init_db():
                 created_at TEXT DEFAULT (datetime('now'))
             );
             CREATE INDEX IF NOT EXISTS idx_conv_messages_conv_id ON conversation_messages(conversation_id);
+
+            CREATE TABLE IF NOT EXISTS medical_profiles (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+                blood_group TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                allergies TEXT,
+                medications TEXT,
+                conditions TEXT,
+                emergency_contact TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now')),
+                updated_at TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS qr_tokens (
+                id TEXT PRIMARY KEY,
+                token TEXT UNIQUE NOT NULL,
+                user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                active INTEGER DEFAULT 1,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_qr_tokens_token ON qr_tokens(token);
+
+            CREATE TABLE IF NOT EXISTS sos_events (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                latitude REAL,
+                longitude REAL,
+                message TEXT NOT NULL,
+                status TEXT DEFAULT 'ACTIVE',
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_sos_events_user ON sos_events(user_id);
+
+            CREATE TABLE IF NOT EXISTS ambulance_requests (
+                id TEXT PRIMARY KEY,
+                user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+                patient_name TEXT NOT NULL,
+                contact_number TEXT NOT NULL,
+                emergency_type TEXT NOT NULL,
+                current_location TEXT NOT NULL,
+                additional_details TEXT,
+                status TEXT DEFAULT 'REQUESTED',
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_ambulance_user ON ambulance_requests(user_id);
+
+            CREATE TABLE IF NOT EXISTS access_logs (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                access_type TEXT NOT NULL,
+                accessed_at TEXT DEFAULT (datetime('now'))
+            );
         """)
         conn.commit()
+
+        # Check SQLite migrations for existing users table
+        cursor.execute("PRAGMA table_info(users);")
+        existing_cols = {row["name"] for row in cursor.fetchall()}
+        for col, col_type in [("allergies", "TEXT"), ("medications", "TEXT"), ("conditions", "TEXT"), ("emergency_phone", "TEXT"), ("emergency_contact", "TEXT"), ("blood_group", "TEXT"), ("phone", "TEXT")]:
+            if col not in existing_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE users ADD COLUMN {col} {col_type};")
+                    conn.commit()
+                except Exception as ex:
+                    print(f"[Migration] Note: {ex}")
 
     conn.close()
     print(f"[Database] Initialized tables successfully ({db_type}).")
@@ -209,13 +341,12 @@ def init_db():
 def query_db(query, args=(), one=False):
     """Convenience helper to query database and return dictionary objects."""
     conn, db_type = get_db_connection()
-    # Normalize parameter placeholders if necessary (? for sqlite, %s for postgres)
     if db_type == "postgresql":
         query = query.replace("?", "%s")
     
     cursor = conn.cursor()
     cursor.execute(query, args)
-    if query.strip().upper().startswith(("SELECT", "WITH")):
+    if query.strip().upper().startswith(("SELECT", "WITH", "PRAGMA")):
         rows = cursor.fetchall()
         cursor.close()
         conn.close()

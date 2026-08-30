@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Health Assistant - CareConnect</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/assistant.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/assistant.css">
+    <link rel="stylesheet" href="CSS/responsive.css">
 </head>
 <body>
 
 <header class="navbar">
     <div class="logo">
-        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit;">
-            <span>🚑</span> CareConnect
+        <a href="dashboard.html" style="display: flex; align-items: center; gap: 8px; color: inherit; text-decoration:none;">
+            <span>🚑</span> <strong>CareConnect</strong>
         </a>
     </div>
     <nav class="nav-links">
@@ -21,8 +21,9 @@
         <a href="scan.html">Scan</a>
         <a href="ai-assistant.html" class="active">AI Assistant</a>
         <a href="symptom-checker.html">Symptoms</a>
-        <a href="report-explainer.html">Reports</a>
-        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm">Logout</a>
+        <a href="ambulance.html">Ambulance</a>
+        <a href="video-call.html">Video Call</a>
+        <a href="#" id="logoutButton" class="btn btn-secondary btn-sm" style="margin-left:5px;">Logout</a>
     </nav>
 </header>
 
@@ -32,7 +33,7 @@
         <span class="icon">🚨</span>
         <div>
             <h4>Immediate Emergency Alert Detected</h4>
-            <p>Your message indicates potentially critical symptoms. Please contact 911 (or local emergency hotline) or proceed immediately to the nearest hospital emergency room.</p>
+            <p>Your message indicates potentially critical symptoms. Please contact 112 / 911 (or local emergency hotline) or proceed immediately to the nearest hospital emergency room.</p>
         </div>
     </div>
 
@@ -71,8 +72,8 @@
     </div>
 </main>
 
-<script src="js/config.js"></script>
-<script src="js/assistant.js"></script>
-<script src="js/auth.js"></script>
+<script src="JS/config.js"></script>
+<script src="JS/assistant.js"></script>
+<script src="JS/auth.js"></script>
 </body>
 </html>
