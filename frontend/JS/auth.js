@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.CareConnectConfig && typeof window.CareConnectConfig.getApiBaseUrl === "function") {
             return window.CareConnectConfig.getApiBaseUrl();
         }
+        if (typeof window !== "undefined" && window.location && window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost") {
+            return window.location.origin;
+        }
         return "http://127.0.0.1:5000";
     }
 

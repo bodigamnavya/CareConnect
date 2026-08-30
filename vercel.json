@@ -4,6 +4,18 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/backend/app.py"
+    },
+    {
+      "source": "/health",
+      "destination": "/backend/app.py"
+    },
+    {
+      "source": "/db-health",
+      "destination": "/backend/app.py"
+    },
+    {
       "source": "/",
       "destination": "/frontend/index.html"
     },

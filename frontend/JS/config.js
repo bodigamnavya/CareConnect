@@ -4,16 +4,21 @@
 
 const CareConnectConfig = {
     // Dynamic API Base URL resolver:
-    // If served directly by backend or production domain, use origin
-    // Fallback to http://127.0.0.1:5000 for local frontend development (e.g. Live Server)
+    // In production (e.g. Vercel, Render, custom domains), automatically resolves to window.location.origin
+    // In local development (e.g. Live Server on port 5500/3000), falls back to http://127.0.0.1:5000
     getApiBaseUrl: function () {
         if (typeof window !== "undefined" && window.location && window.location.protocol.startsWith("http")) {
-            // If served from Flask port 5000 or custom production host (e.g. Render / Vercel with reverse proxy)
-            if (window.location.port === "5000" || (window.location.port === "" && window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost")) {
+            const host = window.location.hostname;
+            const isLocal = host === "127.0.0.1" || host === "localhost";
+            if (!isLocal) {
                 return window.location.origin;
             }
+            if (window.location.port === "5000") {
+                return window.location.origin;
+            }
+            return "http://127.0.0.1:5000";
         }
-        return "http://127.0.0.1:5000";
+        return "";
     },
 
     // Standard Auth Header Helper
