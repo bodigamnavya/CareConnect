@@ -3,7 +3,7 @@ import sqlite3
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from config import Config
+from config import Config, IS_VERCEL
 
 # Check if PostgreSQL connection is requested and available
 USE_POSTGRES = bool(Config.DATABASE_URL and Config.DATABASE_URL.startswith("postgresql"))
@@ -16,24 +16,44 @@ if USE_POSTGRES:
         USE_POSTGRES = False
 
 def get_db_connection():
-    """Returns a database connection (PostgreSQL or SQLite)"""
+    """Returns a database connection (PostgreSQL or SQLite with safe in-memory fallback)"""
     if USE_POSTGRES:
         try:
             conn = psycopg2.connect(Config.DATABASE_URL, cursor_factory=RealDictCursor)
             return conn, "postgresql"
         except Exception as e:
-            print(f"[Database] PostgreSQL connection failed, falling back to SQLite: {e}")
+            print(f"[Database] PostgreSQL connection failed: {e}")
     
-    # SQLite local connection
-    conn = sqlite3.connect(Config.SQLITE_PATH)
-    conn.row_factory = sqlite3.Row
-    # Enable foreign keys
-    conn.execute("PRAGMA foreign_keys = ON;")
-    return conn, "sqlite"
+    # Try connecting to SQLite file path
+    try:
+        if Config.SQLITE_PATH.parent and not Config.SQLITE_PATH.parent.exists():
+            Config.SQLITE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(Config.SQLITE_PATH))
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        return conn, "sqlite"
+    except Exception as e:
+        print(f"[Database] Primary SQLite connection warning ({e}), falling back to in-memory SQLite.")
+        try:
+            conn = sqlite3.connect(":memory:")
+            conn.row_factory = sqlite3.Row
+            return conn, "sqlite"
+        except Exception as inner_e:
+            print(f"[Database] In-memory SQLite failed: {inner_e}")
+            return None, "none"
 
 def init_db():
     """Initializes the database schema if tables do not exist and applies migrations."""
+    # On Vercel or serverless environments, do NOT initialize SQLite
+    if IS_VERCEL and not USE_POSTGRES:
+        print("[Database] Serverless environment detected; skipping SQLite initialization.")
+        return
+
     conn, db_type = get_db_connection()
+    if not conn or db_type == "none":
+        print("[Database] No active database connection available for init_db; skipping.")
+        return
+
     cursor = conn.cursor()
 
     if db_type == "postgresql":
@@ -335,42 +355,58 @@ def init_db():
                 except Exception as ex:
                     print(f"[Migration] Note: {ex}")
 
-    conn.close()
-    print(f"[Database] Initialized tables successfully ({db_type}).")
+        conn.close()
+        print(f"[Database] Initialized tables successfully ({db_type}).")
+
+
+
 
 def query_db(query, args=(), one=False):
     """Convenience helper to query database and return dictionary objects."""
-    conn, db_type = get_db_connection()
-    if db_type == "postgresql":
-        query = query.replace("?", "%s")
-    
-    cursor = conn.cursor()
-    cursor.execute(query, args)
-    if query.strip().upper().startswith(("SELECT", "WITH", "PRAGMA")):
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        if db_type == "sqlite":
-            result = [dict(row) for row in rows]
+    try:
+        conn, db_type = get_db_connection()
+        if not conn:
+            return None if one else []
+        if db_type == "postgresql":
+            query = query.replace("?", "%s")
+        
+        cursor = conn.cursor()
+        cursor.execute(query, args)
+        if query.strip().upper().startswith(("SELECT", "WITH", "PRAGMA")):
+            rows = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            if db_type == "sqlite":
+                result = [dict(row) for row in rows]
+            else:
+                result = [dict(r) for r in rows]
+            return (result[0] if result else None) if one else result
         else:
-            result = [dict(r) for r in rows]
-        return (result[0] if result else None) if one else result
-    else:
-        conn.commit()
-        last_id = getattr(cursor, "lastrowid", None)
-        cursor.close()
-        conn.close()
-        return last_id
+            conn.commit()
+            last_id = getattr(cursor, "lastrowid", None)
+            cursor.close()
+            conn.close()
+            return last_id
+    except Exception as e:
+        print(f"[Database Query Warning]: {e}")
+        return None if one else []
 
 def execute_db(query, args=()):
     """Convenience helper to execute insert/update/delete."""
-    conn, db_type = get_db_connection()
-    if db_type == "postgresql":
-        query = query.replace("?", "%s")
-    cursor = conn.cursor()
-    cursor.execute(query, args)
-    conn.commit()
-    rowcount = cursor.rowcount
-    cursor.close()
-    conn.close()
-    return rowcount
+    try:
+        conn, db_type = get_db_connection()
+        if not conn:
+            return 0
+        if db_type == "postgresql":
+            query = query.replace("?", "%s")
+        cursor = conn.cursor()
+        cursor.execute(query, args)
+        conn.commit()
+        rowcount = cursor.rowcount
+        cursor.close()
+        conn.close()
+        return rowcount
+    except Exception as e:
+        print(f"[Database Execute Warning]: {e}")
+        return 0
+

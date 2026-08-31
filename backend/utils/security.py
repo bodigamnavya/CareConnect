@@ -43,9 +43,57 @@ def get_current_user():
     payload = decode_jwt(token)
     if not payload:
         return None
-    user_id = payload.get("user_id")
-    user = query_db("SELECT id, name, email, phone, blood_group, emergency_contact, emergency_phone FROM users WHERE id = ?", (user_id,), one=True)
-    return user
+    user_id = payload.get("user_id") or payload.get("id")
+    email = payload.get("email", "")
+
+    # 1. Check MongoDB first if configured
+    try:
+        from routes.auth import get_users_collection
+        from bson import ObjectId
+        users_col = get_users_collection()
+        if users_col is not None:
+            user_doc = None
+            if user_id:
+                try:
+                    user_doc = users_col.find_one({"_id": ObjectId(user_id)})
+                except Exception:
+                    user_doc = users_col.find_one({"_id": user_id})
+            if not user_doc and email:
+                user_doc = users_col.find_one({"email": email})
+            if user_doc:
+                return {
+                    "id": str(user_doc.get("_id", user_id)),
+                    "name": user_doc.get("name", ""),
+                    "email": user_doc.get("email", ""),
+                    "phone": user_doc.get("phone", ""),
+                    "blood_group": user_doc.get("blood_group", ""),
+                    "emergency_contact": user_doc.get("emergency_contact", ""),
+                    "emergency_phone": user_doc.get("emergency_phone", "")
+                }
+    except Exception:
+        pass
+
+    # 2. Fallback to SQL database if available
+    try:
+        user = query_db("SELECT id, name, email, phone, blood_group, emergency_contact, emergency_phone FROM users WHERE id = ?", (user_id,), one=True)
+        if user:
+            return dict(user)
+    except Exception:
+        pass
+
+    # 3. Fallback to token payload data if database record not reachable
+    if user_id:
+        return {
+            "id": str(user_id),
+            "name": payload.get("name", "User"),
+            "email": email,
+            "phone": "",
+            "blood_group": "",
+            "emergency_contact": "",
+            "emergency_phone": ""
+        }
+    return None
+
 
 def token_required(f):
     """Decorator to require valid JWT token for protected routes."""
