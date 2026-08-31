@@ -1,10 +1,12 @@
+import os
 import bcrypt
 import jwt
 from functools import wraps
 from datetime import datetime, timezone, timedelta
 from flask import request, jsonify
 from config import Config
-from utils.database import query_db
+from utils.database import get_users_collection
+from bson import ObjectId
 
 def hash_password(password: str) -> str:
     """Hash plain text password using bcrypt."""
@@ -35,7 +37,7 @@ def decode_jwt(token: str):
         return None
 
 def get_current_user():
-    """Extract authenticated user from Authorization header."""
+    """Extract authenticated user from Authorization header using MongoDB."""
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         return None
@@ -46,12 +48,9 @@ def get_current_user():
     user_id = payload.get("user_id") or payload.get("id")
     email = payload.get("email", "")
 
-    # 1. Check MongoDB first if configured
+    # Query MongoDB users collection
     try:
-        from utils.mongo import get_users_collection
-        from bson import ObjectId
         users_col = get_users_collection()
-
         if users_col is not None:
             user_doc = None
             if user_id:
@@ -59,8 +58,11 @@ def get_current_user():
                     user_doc = users_col.find_one({"_id": ObjectId(user_id)})
                 except Exception:
                     user_doc = users_col.find_one({"_id": user_id})
+                if not user_doc:
+                    user_doc = users_col.find_one({"id": user_id})
             if not user_doc and email:
                 user_doc = users_col.find_one({"email": email})
+
             if user_doc:
                 return {
                     "id": str(user_doc.get("_id", user_id)),
@@ -71,18 +73,10 @@ def get_current_user():
                     "emergency_contact": user_doc.get("emergency_contact", ""),
                     "emergency_phone": user_doc.get("emergency_phone", "")
                 }
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[Security Current User Warning]: {e}")
 
-    # 2. Fallback to SQL database if available
-    try:
-        user = query_db("SELECT id, name, email, phone, blood_group, emergency_contact, emergency_phone FROM users WHERE id = ?", (user_id,), one=True)
-        if user:
-            return dict(user)
-    except Exception:
-        pass
-
-    # 3. Fallback to token payload data if database record not reachable
+    # Fallback to token payload data if database query is unavailable
     if user_id:
         return {
             "id": str(user_id),
@@ -94,7 +88,6 @@ def get_current_user():
             "emergency_phone": ""
         }
     return None
-
 
 def token_required(f):
     """Decorator to require valid JWT token for protected routes."""

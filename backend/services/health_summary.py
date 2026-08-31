@@ -1,9 +1,15 @@
 from config import Config
-from utils.database import query_db
+from utils.database import (
+    get_users_collection,
+    get_scans_collection,
+    get_health_records_collection,
+    get_reports_collection
+)
+from bson import ObjectId
 
 def generate_patient_health_summary(user_id: str) -> dict:
     """
-    Combines user's stored information (scans, health records, reports, recent activity)
+    Combines user's stored information from MongoDB (scans, health records, reports)
     and generates an accurate, evidence-grounded clinical health summary.
     """
     user = None
@@ -11,22 +17,15 @@ def generate_patient_health_summary(user_id: str) -> dict:
     records = []
     reports = []
 
-    # 1. Try MongoDB
     try:
-        from utils.mongo import (
-            get_users_collection,
-            get_scans_collection,
-            get_health_records_collection,
-            get_reports_collection
-        )
-        from bson import ObjectId
-
         u_col = get_users_collection()
         if u_col is not None:
             try:
                 user = u_col.find_one({"_id": ObjectId(user_id)})
             except Exception:
                 user = u_col.find_one({"_id": user_id})
+            if not user:
+                user = u_col.find_one({"id": user_id})
 
         s_col = get_scans_collection()
         if s_col is not None:
@@ -42,18 +41,8 @@ def generate_patient_health_summary(user_id: str) -> dict:
     except Exception as ex:
         print(f"[HealthSummary MongoDB fetch note]: {ex}")
 
-    # 2. Fallback to SQL for missing items
     if not user:
-        user = query_db("SELECT id, name, email, blood_group, emergency_contact, emergency_phone FROM users WHERE id = ?", (user_id,), one=True)
-    if not scans:
-        scans = query_db("SELECT id, scan_type, result, confidence, created_at FROM scans WHERE user_id = ? ORDER BY created_at DESC", (user_id,)) or []
-    if not records:
-        records = query_db("SELECT id, category, title, details, severity, is_active FROM health_records WHERE user_id = ?", (user_id,)) or []
-    if not reports:
-        reports = query_db("SELECT id, title, report_type, created_at FROM reports WHERE user_id = ?", (user_id,)) or []
-
-    if not user:
-        return {"success": False, "message": "User not found."}
+        user = {"name": "Patient", "blood_group": "Not specified", "emergency_contact": "Not specified"}
 
     total_scans = len(scans)
     total_records = len(records)
@@ -66,7 +55,7 @@ def generate_patient_health_summary(user_id: str) -> dict:
 
     # Build grounded summary paragraph
     summary_paragraph = (
-        f"Health profile for {user['name']}. Your CareConnect activity reflects {total_scans} medical scan(s), "
+        f"Health profile for {user.get('name', 'Patient')}. Your CareConnect activity reflects {total_scans} medical scan(s), "
         f"{total_records} recorded health item(s), and {total_reports} clinical report(s). "
     )
 
@@ -92,7 +81,7 @@ def generate_patient_health_summary(user_id: str) -> dict:
 
     return {
         "success": True,
-        "patient_name": user["name"],
+        "patient_name": user.get("name", "Patient"),
         "blood_group": user.get("blood_group") or "Not specified",
         "emergency_contact": user.get("emergency_contact") or "Not specified",
         "total_scans": total_scans,

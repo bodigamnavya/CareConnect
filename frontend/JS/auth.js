@@ -14,10 +14,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (window.CareConnectConfig && typeof window.CareConnectConfig.getApiBaseUrl === "function") {
             return window.CareConnectConfig.getApiBaseUrl();
         }
-        if (typeof window !== "undefined" && window.location && window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost") {
-            return window.location.origin;
+        if (typeof window !== "undefined" && window.location) {
+            const host = window.location.hostname;
+            const port = window.location.port;
+            if ((host === "127.0.0.1" || host === "localhost") && port && port !== "5000") {
+                return "http://127.0.0.1:5000";
+            }
+            return "";
         }
-        return "http://127.0.0.1:5000";
+        return "";
     }
 
     // ============================================
@@ -96,7 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             try {
-                const apiUrl = `${getApiBaseUrl()}/api/register`;
+                const baseUrl = getApiBaseUrl();
+                const apiUrl = `${baseUrl}/api/register`;
                 console.log("REGISTER API Request:", apiUrl);
 
                 const response = await fetch(apiUrl, {
@@ -148,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("REGISTER ERROR:", error);
                 showMessage(
                     "registerMessage",
-                    "Cannot connect to CareConnect server. Please check that the backend is running.",
+                    "Cannot connect to CareConnect server. Please check that the service is online.",
                     "error"
                 );
             } finally {
@@ -190,7 +196,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             try {
-                const apiUrl = `${getApiBaseUrl()}/api/login`;
+                const baseUrl = getApiBaseUrl();
+                const apiUrl = `${baseUrl}/api/login`;
                 console.log("LOGIN API Request:", apiUrl);
 
                 const response = await fetch(apiUrl, {
@@ -241,7 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("LOGIN ERROR:", error);
                 showMessage(
                     "loginMessage",
-                    "Cannot connect to CareConnect server. Please check that the backend is running.",
+                    "Cannot connect to CareConnect server. Please check that the service is online.",
                     "error"
                 );
             } finally {

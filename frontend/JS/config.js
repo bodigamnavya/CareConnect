@@ -4,19 +4,21 @@
 
 const CareConnectConfig = {
     // Dynamic API Base URL resolver:
-    // In production (e.g. Vercel, Render, custom domains), automatically resolves to window.location.origin
-    // In local development (e.g. Live Server on port 5500/3000), falls back to http://127.0.0.1:5000
+    // In production (Vercel, custom domain, or served from Flask on same origin), returns "" (relative path) or window.location.origin
+    // In local development frontend servers (e.g. Live Server on port 5500/3000/8080), resolves to http://127.0.0.1:5000
     getApiBaseUrl: function () {
         if (typeof window !== "undefined" && window.location && window.location.protocol.startsWith("http")) {
             const host = window.location.hostname;
+            const port = window.location.port;
             const isLocal = host === "127.0.0.1" || host === "localhost";
-            if (!isLocal) {
-                return window.location.origin;
+
+            // If running on local separate dev server (e.g. VS Code Live Server on 5500 / 3000)
+            if (isLocal && port && port !== "5000") {
+                return "http://127.0.0.1:5000";
             }
-            if (window.location.port === "5000") {
-                return window.location.origin;
-            }
-            return "http://127.0.0.1:5000";
+
+            // In production (Vercel, Render, custom domain) or when served directly from Flask on port 5000
+            return "";
         }
         return "";
     },

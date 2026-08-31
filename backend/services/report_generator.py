@@ -3,20 +3,22 @@ import uuid
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from bson import ObjectId
 from config import Config
-from utils.database import query_db, execute_db
+from utils.database import (
+    get_users_collection,
+    get_scans_collection,
+    get_reports_collection
+)
 
 def generate_scan_report(user_id: str, scan_id: str) -> dict:
     """
-    Generates a formal, formatted clinical scan report document.
+    Generates a formal, formatted clinical scan report document and stores in MongoDB.
     """
-    # 1. Fetch user & scan data (MongoDB or SQL)
     user = None
     scan = None
 
     try:
-        from utils.mongo import get_users_collection, get_scans_collection, get_reports_collection
-        from bson import ObjectId
         users_col = get_users_collection()
         scans_col = get_scans_collection()
         if users_col is not None:
@@ -24,33 +26,30 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
                 user = users_col.find_one({"_id": ObjectId(user_id)})
             except Exception:
                 user = users_col.find_one({"_id": user_id})
+            if not user:
+                user = users_col.find_one({"id": user_id})
+
         if scans_col is not None:
             scan = scans_col.find_one({"$or": [{"id": scan_id}, {"_id": scan_id}], "user_id": user_id})
     except Exception as ex:
         print(f"[Report Gen MongoDB fetch warning]: {ex}")
 
-    if not user:
-        user = query_db("SELECT id, name, email, phone, blood_group FROM users WHERE id = ?", (user_id,), one=True)
-    if not scan:
-        scan = query_db("SELECT * FROM scans WHERE id = ? AND user_id = ?", (scan_id, user_id), one=True)
-
     if not user or not scan:
         return {"success": False, "message": "User or scan record not found."}
 
     report_id = f"rep_{uuid.uuid4().hex[:16]}"
-    report_title = f"Health Scan Report - {scan['scan_type']}"
+    report_title = f"Health Scan Report - {scan.get('scan_type', 'Medical Scan')}"
     report_filename = f"report_{scan_id}_{uuid.uuid4().hex[:8]}.html"
     report_dir = Config.UPLOAD_FOLDER / "reports"
     os.makedirs(report_dir, exist_ok=True)
     report_path = report_dir / report_filename
 
-
-    # 2. Build HTML Document
+    # Build HTML Document
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CareConnect Scan Report - {scan['id']}</title>
+    <title>CareConnect Scan Report - {scan.get('id', scan_id)}</title>
     <style>
         body {{
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -155,34 +154,34 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
 
         <div class="grid">
             <div>
-                <strong>Patient Name:</strong> {user['name']}<br>
-                <strong>Email:</strong> {user['email']}<br>
+                <strong>Patient Name:</strong> {user.get('name', 'Patient')}<br>
+                <strong>Email:</strong> {user.get('email', '')}<br>
                 <strong>Blood Group:</strong> {user.get('blood_group') or 'N/A'}
             </div>
             <div>
-                <strong>Scan ID:</strong> {scan['id']}<br>
-                <strong>Scan Date:</strong> {scan['created_at']}<br>
-                <strong>Scan Type:</strong> {scan['scan_type']}
+                <strong>Scan ID:</strong> {scan.get('id', scan_id)}<br>
+                <strong>Scan Date:</strong> {str(scan.get('created_at', ''))}<br>
+                <strong>Scan Type:</strong> {scan.get('scan_type', 'Scan')}
             </div>
         </div>
 
         <div class="section-title">AI Analysis & Detected Result</div>
         <div class="result-box">
-            <div class="result-text">{scan['result']}</div>
-            <div class="confidence">Confidence Score: {scan['confidence']}%</div>
+            <div class="result-text">{scan.get('result', 'Analysis Complete')}</div>
+            <div class="confidence">Confidence Score: {scan.get('confidence', 0)}%</div>
         </div>
 
         <div class="section-title">Detailed Explanation</div>
-        <p>{scan['explanation']}</p>
+        <p>{scan.get('explanation', '')}</p>
 
         <div class="section-title">Possible Meaning & Clinical Indications</div>
-        <p>{scan['possible_meaning']}</p>
+        <p>{scan.get('possible_meaning', '')}</p>
 
         <div class="section-title">Recommended Next Steps & Guidance</div>
-        <p>{scan['recommendation']}</p>
+        <p>{scan.get('recommendation', '')}</p>
 
         <div class="section-title">Warning Signs & When to Seek In-Person Care</div>
-        <p>{scan['warning_signs']}</p>
+        <p>{scan.get('warning_signs', '')}</p>
 
         <div class="disclaimer-box">
             <strong>IMPORTANT MEDICAL NOTICE:</strong><br>
@@ -196,56 +195,39 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
 </body>
 </html>
 """
-    with open(report_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
+    try:
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+    except Exception as ex:
+        print(f"[Report Gen File Write Error]: {ex}")
 
-    # 3. Store in reports (MongoDB & SQL)
+    # Store in reports MongoDB collection
     rel_file_url = f"/uploads/reports/{report_filename}"
     content_json = {
-        "scan_id": scan["id"],
-        "scan_type": scan["scan_type"],
-        "result": scan["result"],
-        "confidence": scan["confidence"]
+        "scan_id": scan.get("id", scan_id),
+        "scan_type": scan.get("scan_type", ""),
+        "result": scan.get("result", ""),
+        "confidence": scan.get("confidence", 0)
     }
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_utc = datetime.now(timezone.utc)
 
     try:
-        from utils.mongo import get_reports_collection
         rep_col = get_reports_collection()
         if rep_col is not None:
             rep_col.insert_one({
                 "_id": report_id,
                 "id": report_id,
                 "user_id": user_id,
-                "scan_id": scan["id"],
+                "scan_id": scan.get("id", scan_id),
                 "report_type": "SCAN_REPORT",
                 "title": report_title,
                 "file_path": rel_file_url,
                 "content_json": content_json,
-                "summary_text": scan["explanation"][:200],
-                "created_at": datetime.now(timezone.utc)
+                "summary_text": str(scan.get("explanation", ""))[:200],
+                "created_at": now_utc
             })
     except Exception as ex:
         print(f"[Report Gen MongoDB save warning]: {ex}")
-
-    try:
-        execute_db(
-            "INSERT INTO reports (id, user_id, scan_id, report_type, title, file_path, content_json, summary_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                report_id,
-                user_id,
-                scan["id"],
-                "SCAN_REPORT",
-                report_title,
-                rel_file_url,
-                json.dumps(content_json),
-                scan["explanation"][:200],
-                now_iso
-            )
-        )
-    except Exception:
-        pass
-
 
     return {
         "success": True,

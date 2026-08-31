@@ -10,7 +10,7 @@ if backend_dir not in sys.path:
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from config import Config, IS_VERCEL
-from utils.database import init_db, query_db, get_db_connection, USE_POSTGRES
+from utils.database import init_db, check_db_connection
 
 # Blueprints
 from routes.auth import auth_bp
@@ -24,18 +24,18 @@ from routes.ambulance import ambulance_bp
 from routes.sos import sos_bp
 from routes.qr import qr_bp
 
+
 def create_app():
     app = Flask(__name__, static_folder="../frontend", static_url_path="")
     app.config.from_object(Config)
 
-    # Initialize Database Schema only in local development / non-Vercel environment
-    if not IS_VERCEL:
-        try:
-            init_db()
-        except Exception as e:
-            print(f"[Database] Warning: init_db skipped: {e}")
+    # Attempt non-blocking MongoDB index setup
+    try:
+        init_db()
+    except Exception as e:
+        print(f"[Database] Warning: MongoDB index initialization skipped: {e}")
 
-    # Configure CORS
+    # Configure CORS for local development and production
     CORS(
         app,
         resources={r"/*": {"origins": "*"}},
@@ -62,6 +62,7 @@ def create_app():
             "service": "CareConnect",
             "version": "2.0.0",
             "status": "online",
+            "database": "MongoDB Atlas",
             "message": "CareConnect AI-Powered Healthcare Assistance Platform is running 🚑"
         })
 
@@ -75,74 +76,28 @@ def create_app():
 
     @app.route("/db-health", methods=["GET"])
     def db_health():
-        """Database connectivity & health verification endpoint"""
-        mongo_uri = os.getenv("MONGO_URI") or getattr(Config, "MONGO_URI", None)
-        if mongo_uri:
-            try:
-                from pymongo import MongoClient
-                client = MongoClient(
-                    mongo_uri,
-                    serverSelectionTimeoutMS=4000,
-                    connectTimeoutMS=4000
-                )
-                client.admin.command("ping")
-                db = client["careconnect"]
-                user_count = db["users"].count_documents({})
-                return jsonify({
-                    "status": "ok",
-                    "database": "MongoDB connected",
-                    "users_count": user_count,
-                    "service": "CareConnect"
-                }), 200
-            except Exception as e:
-                return jsonify({
-                    "status": "error",
-                    "database": "MongoDB connection failed",
-                    "error": str(e),
-                    "service": "CareConnect"
-                }), 500
-
-        if IS_VERCEL and not USE_POSTGRES:
+        """Database connectivity & health verification endpoint (MongoDB)"""
+        is_connected, message, info = check_db_connection()
+        if is_connected:
             return jsonify({
                 "status": "ok",
-                "database": "Serverless ready (configure MONGO_URI in Vercel settings)",
+                "database": "MongoDB connected",
+                "users_count": info.get("users_count", 0),
                 "service": "CareConnect"
             }), 200
-
-        # Fallback verification for SQL databases (PostgreSQL or local SQLite)
-        try:
-            conn, db_type = get_db_connection()
-            if conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(*) FROM users;")
-                cursor.close()
-                conn.close()
-                return jsonify({
-                    "status": "ok",
-                    "database": f"{db_type.capitalize()} connected",
-                    "service": "CareConnect"
-                }), 200
-            else:
-                return jsonify({
-                    "status": "ok",
-                    "database": "Database check skipped",
-                    "service": "CareConnect"
-                }), 200
-        except Exception as e:
+        else:
             return jsonify({
-                "status": "error",
-                "database": "Database check failed",
-                "error": str(e),
+                "status": "warning" if IS_VERCEL else "error",
+                "database": message,
                 "service": "CareConnect"
-            }), 500
+            }), 200 if IS_VERCEL else 500
 
-
-    # Static file serving for uploads
+    # Static file serving for uploaded scan images and reports
     @app.route("/uploads/<path:filename>")
     def serve_upload(filename):
         return send_from_directory(Config.UPLOAD_FOLDER, filename)
 
-    # Global Error Handlers
+    # Global Error Handlers (Always JSON)
     @app.errorhandler(400)
     def bad_request(e):
         return jsonify({"success": False, "message": "Bad request.", "error": str(e)}), 400
@@ -160,6 +115,7 @@ def create_app():
         return jsonify({"success": False, "message": "An internal server error occurred.", "error": "INTERNAL_SERVER_ERROR"}), 500
 
     return app
+
 
 app = create_app()
 

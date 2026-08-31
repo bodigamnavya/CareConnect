@@ -4,7 +4,10 @@ from datetime import datetime, timezone
 import requests
 from config import Config
 from services.triage import check_emergency, evaluate_triage
-from utils.database import query_db, execute_db
+from utils.database import (
+    get_conversations_collection,
+    get_conversation_messages_collection
+)
 
 # Medical Knowledge System Prompt for AI Chat
 SYSTEM_PROMPT = """
@@ -115,46 +118,89 @@ def generate_chat_response_internal(user_message: str, history: list[dict]) -> s
 
 def handle_chat_message(user_id: str, message_text: str, conversation_id: str = "") -> dict:
     """
-    Handles user chat message, maintains database thread context,
+    Handles user chat message, maintains MongoDB thread context,
     checks emergency triage, and returns structured AI response.
     """
     clean_message = str(message_text).strip()
     if not clean_message:
         return {"success": False, "message": "Message cannot be empty."}
 
+    now_utc = datetime.now(timezone.utc)
+    conv_col = get_conversations_collection()
+    msg_col = get_conversation_messages_collection()
+
     # 1. Create or retrieve conversation
     if not conversation_id:
         conversation_id = f"conv_{uuid.uuid4().hex[:16]}"
-        execute_db(
-            "INSERT INTO conversations (id, user_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-            (conversation_id, user_id, clean_message[:40], datetime.now(timezone.utc).isoformat(), datetime.now(timezone.utc).isoformat())
-        )
+        if conv_col is not None:
+            try:
+                conv_col.insert_one({
+                    "_id": conversation_id,
+                    "id": conversation_id,
+                    "user_id": user_id,
+                    "title": clean_message[:40],
+                    "created_at": now_utc,
+                    "updated_at": now_utc
+                })
+            except Exception as e:
+                print(f"[AI Chat conv insert note]: {e}")
     else:
         # Verify conversation belongs to user
-        conv = query_db("SELECT id FROM conversations WHERE id = ? AND user_id = ?", (conversation_id, user_id), one=True)
-        if not conv:
-            conversation_id = f"conv_{uuid.uuid4().hex[:16]}"
-            execute_db(
-                "INSERT INTO conversations (id, user_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-                (conversation_id, user_id, clean_message[:40], datetime.now(timezone.utc).isoformat(), datetime.now(timezone.utc).isoformat())
-            )
+        if conv_col is not None:
+            try:
+                conv = conv_col.find_one({"$or": [{"_id": conversation_id}, {"id": conversation_id}], "user_id": user_id})
+                if not conv:
+                    conversation_id = f"conv_{uuid.uuid4().hex[:16]}"
+                    conv_col.insert_one({
+                        "_id": conversation_id,
+                        "id": conversation_id,
+                        "user_id": user_id,
+                        "title": clean_message[:40],
+                        "created_at": now_utc,
+                        "updated_at": now_utc
+                    })
+                else:
+                    conv_col.update_one(
+                        {"$or": [{"_id": conversation_id}, {"id": conversation_id}]},
+                        {"$set": {"updated_at": now_utc}}
+                    )
+            except Exception:
+                pass
 
     # 2. Check Emergency Safety
     is_emergency, emergency_text = check_emergency(clean_message)
     triage_level = "URGENT" if is_emergency else "LOW"
 
-    # Save user message to database
+    # Save user message in MongoDB
     user_msg_id = f"msg_{uuid.uuid4().hex[:16]}"
-    execute_db(
-        "INSERT INTO conversation_messages (id, conversation_id, sender, message, triage_level, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (user_msg_id, conversation_id, "user", clean_message, triage_level, datetime.now(timezone.utc).isoformat())
-    )
+    if msg_col is not None:
+        try:
+            msg_col.insert_one({
+                "_id": user_msg_id,
+                "id": user_msg_id,
+                "conversation_id": conversation_id,
+                "sender": "user",
+                "message": clean_message,
+                "triage_level": triage_level,
+                "created_at": now_utc
+            })
+        except Exception as e:
+            print(f"[AI Chat user message insert note]: {e}")
 
     # 3. Retrieve conversation history for context (last 6 messages)
-    history_rows = query_db(
-        "SELECT sender, message FROM conversation_messages WHERE conversation_id = ? ORDER BY created_at ASC",
-        (conversation_id,)
-    ) or []
+    history_rows = []
+    if msg_col is not None:
+        try:
+            history_docs = list(msg_col.find({"conversation_id": conversation_id}).sort("created_at", 1).limit(6))
+            for h in history_docs:
+                history_rows.append({
+                    "sender": h.get("sender", "user"),
+                    "message": h.get("message", "")
+                })
+        except Exception:
+            history_rows = [{"sender": "user", "message": clean_message}]
+    else:
+        history_rows = [{"sender": "user", "message": clean_message}]
 
     # 4. Generate AI response
     if is_emergency:
@@ -166,12 +212,21 @@ def handle_chat_message(user_id: str, message_text: str, conversation_id: str = 
         if not ai_response_text:
             ai_response_text = generate_chat_response_internal(clean_message, history_rows)
 
-    # 5. Save assistant response to database
+    # 5. Save assistant response in MongoDB
     ai_msg_id = f"msg_{uuid.uuid4().hex[:16]}"
-    execute_db(
-        "INSERT INTO conversation_messages (id, conversation_id, sender, message, triage_level, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (ai_msg_id, conversation_id, "assistant", ai_response_text, triage_level, datetime.now(timezone.utc).isoformat())
-    )
+    if msg_col is not None:
+        try:
+            msg_col.insert_one({
+                "_id": ai_msg_id,
+                "id": ai_msg_id,
+                "conversation_id": conversation_id,
+                "sender": "assistant",
+                "message": ai_response_text,
+                "triage_level": triage_level,
+                "created_at": datetime.now(timezone.utc)
+            })
+        except Exception as e:
+            print(f"[AI Chat assistant message insert note]: {e}")
 
     return {
         "success": True,

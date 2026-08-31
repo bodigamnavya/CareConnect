@@ -3,23 +3,11 @@ from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt
 from flask import Blueprint, request, jsonify
-from pymongo import MongoClient
 from pymongo.errors import PyMongoError, DuplicateKeyError
 from bson import ObjectId
 from dotenv import load_dotenv
 from config import Config
-
-load_dotenv()
-
-MONGO_URI = os.getenv("MONGO_URI", "")
-JWT_SECRET = os.getenv("JWT_SECRET", "CareConnect_Secure_JWT_2026_Production_Key_987654")
-
-from utils.mongo import (
-    get_mongo_client,
-    get_mongo_db,
-    get_users_collection
-)
-
+from utils.database import get_users_collection
 
 auth_bp = Blueprint("auth_bp", __name__)
 
@@ -60,7 +48,6 @@ def register():
 
         users_col = get_users_collection()
         if users_col is None:
-            # If MongoDB is not configured or unreachable
             return jsonify({
                 "success": False,
                 "message": "Database connection failed. Please ensure MONGO_URI is configured."
@@ -93,7 +80,8 @@ def register():
             {
                 "user_id": user_id,
                 "email": email,
-                "exp": datetime.now(timezone.utc) + timedelta(hours=48)
+                "name": name,
+                "exp": datetime.now(timezone.utc) + timedelta(hours=Config.JWT_EXPIRATION_HOURS)
             },
             jwt_key,
             algorithm="HS256"
@@ -101,7 +89,7 @@ def register():
 
         return jsonify({
             "success": True,
-            "message": "Registration successful! Welcome to CareConnect.",
+            "message": "Registration successful",
             "token": token,
             "user": {
                 "id": user_id,
@@ -186,11 +174,15 @@ def login():
             }), 401
 
         jwt_key = os.getenv("JWT_SECRET") or Config.JWT_SECRET
+        user_id = str(user.get("_id") or user.get("id"))
+        user_name = user.get("name", "")
+
         token = jwt.encode(
             {
-                "user_id": str(user["_id"]),
+                "user_id": user_id,
                 "email": user["email"],
-                "exp": datetime.now(timezone.utc) + timedelta(hours=48)
+                "name": user_name,
+                "exp": datetime.now(timezone.utc) + timedelta(hours=Config.JWT_EXPIRATION_HOURS)
             },
             jwt_key,
             algorithm="HS256"
@@ -201,8 +193,8 @@ def login():
             "message": "Login successful",
             "token": token,
             "user": {
-                "id": str(user["_id"]),
-                "name": user.get("name", ""),
+                "id": user_id,
+                "name": user_name,
                 "email": user["email"],
                 "phone": user.get("phone", ""),
                 "blood_group": user.get("blood_group", "")
@@ -234,4 +226,3 @@ def logout():
         "success": True,
         "message": "Logged out successfully"
     }), 200
-

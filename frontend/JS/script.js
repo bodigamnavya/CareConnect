@@ -6,10 +6,15 @@ function getApiBaseUrl() {
     if (window.CareConnectConfig && typeof window.CareConnectConfig.getApiBaseUrl === "function") {
         return window.CareConnectConfig.getApiBaseUrl();
     }
-    if (typeof window !== "undefined" && window.location && window.location.hostname !== "127.0.0.1" && window.location.hostname !== "localhost") {
-        return window.location.origin;
+    if (typeof window !== "undefined" && window.location) {
+        const host = window.location.hostname;
+        const port = window.location.port;
+        if ((host === "127.0.0.1" || host === "localhost") && port && port !== "5000") {
+            return "http://127.0.0.1:5000";
+        }
+        return "";
     }
-    return "http://127.0.0.1:5000";
+    return "";
 }
 
 // =====================================================

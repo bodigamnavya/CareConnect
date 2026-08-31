@@ -16,6 +16,10 @@
       "destination": "/backend/app.py"
     },
     {
+      "source": "/uploads/(.*)",
+      "destination": "/backend/app.py"
+    },
+    {
       "source": "/",
       "destination": "/frontend/index.html"
     },

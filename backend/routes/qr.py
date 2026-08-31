@@ -6,7 +6,12 @@ import qrcode
 from flask import Blueprint, request, jsonify
 from bson import ObjectId
 from utils.security import token_required
-from utils.database import query_db, execute_db
+from utils.database import (
+    get_users_collection,
+    get_medical_profiles_collection,
+    get_qr_tokens_collection,
+    get_access_logs_collection
+)
 
 qr_bp = Blueprint("qr_bp", __name__)
 
@@ -18,69 +23,49 @@ def generate_qr(current_user):
     """
     user_id = current_user["id"]
     profile = None
+    user_info = None
 
-    # 1. Check MongoDB first
     try:
-        from utils.mongo import get_mongo_db
-        db = get_mongo_db()
-        if db is not None:
-            profile = db["medical_profiles"].find_one({"user_id": user_id})
-            if not profile:
-                try:
-                    profile = db["users"].find_one({"_id": ObjectId(user_id)})
-                except Exception:
-                    profile = db["users"].find_one({"_id": user_id})
-    except Exception:
-        pass
+        med_col = get_medical_profiles_collection()
+        users_col = get_users_collection()
+        if med_col is not None:
+            profile = med_col.find_one({"user_id": user_id})
+        if users_col is not None:
+            try:
+                user_info = users_col.find_one({"_id": ObjectId(user_id)})
+            except Exception:
+                user_info = users_col.find_one({"_id": user_id})
+            if not user_info:
+                user_info = users_col.find_one({"id": user_id})
+    except Exception as ex:
+        print(f"[Generate QR MongoDB error]: {ex}")
 
-    # 2. Check SQL fallback
-    if not profile:
-        profile = query_db(
-            "SELECT * FROM medical_profiles WHERE user_id = ?",
-            (user_id,), one=True
-        )
-    if not profile:
-        user_row = query_db(
-            "SELECT name, blood_group, phone, emergency_contact, emergency_phone, allergies, medications, conditions FROM users WHERE id = ?",
-            (user_id,), one=True
-        )
-        if user_row and user_row.get("blood_group"):
-            profile = user_row
-        elif current_user.get("blood_group"):
-            profile = current_user
+    if not profile and user_info and user_info.get("blood_group"):
+        profile = user_info
+    elif not profile and current_user.get("blood_group"):
+        profile = current_user
 
-    if not profile:
+    if not profile and not user_info:
         return jsonify({
             "success": False,
             "message": "Medical profile not found. Please save your medical profile first."
         }), 404
 
     qr_token = uuid.uuid4().hex
-    record_id = f"qrt_{uuid.uuid4().hex[:16]}"
-    now_iso = datetime.now(timezone.utc).isoformat()
+    now_utc = datetime.now(timezone.utc)
 
     # Save token in MongoDB
     try:
-        from utils.mongo import get_mongo_db
-        db = get_mongo_db()
-        if db is not None:
-            db["qr_tokens"].insert_one({
+        qr_col = get_qr_tokens_collection()
+        if qr_col is not None:
+            qr_col.insert_one({
                 "token": qr_token,
                 "user_id": user_id,
-                "created_at": datetime.now(timezone.utc),
+                "created_at": now_utc,
                 "active": True
             })
-    except Exception:
-        pass
-
-    # Save token in SQL
-    try:
-        execute_db(
-            "INSERT INTO qr_tokens (id, token, user_id, active, created_at) VALUES (?, ?, ?, 1, ?)",
-            (record_id, qr_token, user_id, now_iso)
-        )
-    except Exception:
-        pass
+    except Exception as ex:
+        print(f"[QR Token Save error]: {ex}")
 
     # Encode medical URL / data in QR
     base_url = request.host_url.rstrip("/")
@@ -109,41 +94,35 @@ def view_qr(token):
     profile = None
     user_info = None
 
-    # 1. Search in MongoDB
     try:
-        from utils.mongo import get_mongo_db
-        db = get_mongo_db()
-        if db is not None:
-            qr_doc = db["qr_tokens"].find_one({"token": token, "active": True})
+        qr_col = get_qr_tokens_collection()
+        med_col = get_medical_profiles_collection()
+        users_col = get_users_collection()
+        log_col = get_access_logs_collection()
+
+        if qr_col is not None:
+            qr_doc = qr_col.find_one({"token": token, "active": True})
             if qr_doc:
                 user_id = qr_doc["user_id"]
-                profile = db["medical_profiles"].find_one({"user_id": user_id})
-                try:
-                    user_info = db["users"].find_one({"_id": ObjectId(user_id)})
-                except Exception:
-                    user_info = db["users"].find_one({"_id": user_id})
+                if med_col is not None:
+                    profile = med_col.find_one({"user_id": user_id})
+                if users_col is not None:
+                    try:
+                        user_info = users_col.find_one({"_id": ObjectId(user_id)})
+                    except Exception:
+                        user_info = users_col.find_one({"_id": user_id})
+                    if not user_info:
+                        user_info = users_col.find_one({"id": user_id})
 
                 # Log access in MongoDB
-                db["access_logs"].insert_one({
-                    "user_id": user_id,
-                    "access_type": "QR_SCAN",
-                    "accessed_at": datetime.now(timezone.utc)
-                })
-    except Exception:
-        pass
-
-    # 2. Search in SQL fallback if not found
-    if not profile and not user_info:
-        qr_doc = query_db(
-            "SELECT * FROM qr_tokens WHERE token = ? AND active = 1",
-            (token,), one=True
-        )
-        if qr_doc:
-            user_id = qr_doc["user_id"]
-            profile = query_db("SELECT * FROM medical_profiles WHERE user_id = ?", (user_id,), one=True)
-            user_info = query_db("SELECT id, name, blood_group, phone, emergency_contact, emergency_phone, allergies, medications, conditions FROM users WHERE id = ?", (user_id,), one=True)
-            log_id = f"log_{uuid.uuid4().hex[:16]}"
-            execute_db("INSERT INTO access_logs (id, user_id, access_type, accessed_at) VALUES (?, ?, 'QR_SCAN', ?)", (log_id, user_id, datetime.now(timezone.utc).isoformat()))
+                if log_col is not None:
+                    log_col.insert_one({
+                        "user_id": user_id,
+                        "access_type": "QR_SCAN",
+                        "accessed_at": datetime.now(timezone.utc)
+                    })
+    except Exception as ex:
+        print(f"[View QR Error]: {ex}")
 
     if not profile and not user_info:
         return jsonify({
@@ -166,4 +145,3 @@ def view_qr(token):
         "message": "Emergency medical information",
         "medical_profile": emergency_data
     }), 200
-
