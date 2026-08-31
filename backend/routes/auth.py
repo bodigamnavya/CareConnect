@@ -14,53 +14,12 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI", "")
 JWT_SECRET = os.getenv("JWT_SECRET", "CareConnect_Secure_JWT_2026_Production_Key_987654")
 
-# MongoDB connection management
-_client = None
-_db = None
-_users_collection = None
-_index_created = False
+from utils.mongo import (
+    get_mongo_client,
+    get_mongo_db,
+    get_users_collection
+)
 
-def get_mongo_client():
-    global _client
-    mongo_uri = os.getenv("MONGO_URI") or MONGO_URI
-    if not mongo_uri:
-        return None
-    if _client is None:
-        try:
-            _client = MongoClient(
-                mongo_uri,
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=5000,
-                socketTimeoutMS=5000
-            )
-        except Exception as e:
-            print(f"[MongoDB] Connection error: {e}")
-            return None
-    return _client
-
-def get_mongo_db():
-    global _db
-    client = get_mongo_client()
-    if client is not None:
-        if _db is None:
-            _db = client["careconnect"]
-        return _db
-    return None
-
-def get_users_collection():
-    global _users_collection, _index_created
-    db = get_mongo_db()
-    if db is not None:
-        if _users_collection is None:
-            _users_collection = db["users"]
-            if not _index_created:
-                try:
-                    _users_collection.create_index("email", unique=True)
-                    _index_created = True
-                except Exception as e:
-                    print(f"[MongoDB] Index creation note: {e}")
-        return _users_collection
-    return None
 
 auth_bp = Blueprint("auth_bp", __name__)
 

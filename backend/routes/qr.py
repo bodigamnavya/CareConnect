@@ -21,7 +21,7 @@ def generate_qr(current_user):
 
     # 1. Check MongoDB first
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             profile = db["medical_profiles"].find_one({"user_id": user_id})
@@ -61,7 +61,7 @@ def generate_qr(current_user):
 
     # Save token in MongoDB
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             db["qr_tokens"].insert_one({
@@ -111,7 +111,7 @@ def view_qr(token):
 
     # 1. Search in MongoDB
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             qr_doc = db["qr_tokens"].find_one({"token": token, "active": True})

@@ -10,9 +10,29 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
     """
     Generates a formal, formatted clinical scan report document.
     """
-    # 1. Fetch user & scan data
-    user = query_db("SELECT id, name, email, phone, blood_group FROM users WHERE id = ?", (user_id,), one=True)
-    scan = query_db("SELECT * FROM scans WHERE id = ? AND user_id = ?", (scan_id, user_id), one=True)
+    # 1. Fetch user & scan data (MongoDB or SQL)
+    user = None
+    scan = None
+
+    try:
+        from utils.mongo import get_users_collection, get_scans_collection, get_reports_collection
+        from bson import ObjectId
+        users_col = get_users_collection()
+        scans_col = get_scans_collection()
+        if users_col is not None:
+            try:
+                user = users_col.find_one({"_id": ObjectId(user_id)})
+            except Exception:
+                user = users_col.find_one({"_id": user_id})
+        if scans_col is not None:
+            scan = scans_col.find_one({"$or": [{"id": scan_id}, {"_id": scan_id}], "user_id": user_id})
+    except Exception as ex:
+        print(f"[Report Gen MongoDB fetch warning]: {ex}")
+
+    if not user:
+        user = query_db("SELECT id, name, email, phone, blood_group FROM users WHERE id = ?", (user_id,), one=True)
+    if not scan:
+        scan = query_db("SELECT * FROM scans WHERE id = ? AND user_id = ?", (scan_id, user_id), one=True)
 
     if not user or not scan:
         return {"success": False, "message": "User or scan record not found."}
@@ -20,8 +40,10 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
     report_id = f"rep_{uuid.uuid4().hex[:16]}"
     report_title = f"Health Scan Report - {scan['scan_type']}"
     report_filename = f"report_{scan_id}_{uuid.uuid4().hex[:8]}.html"
-    report_path = Config.UPLOAD_FOLDER / "reports" / report_filename
-    os.makedirs(Config.UPLOAD_FOLDER / "reports", exist_ok=True)
+    report_dir = Config.UPLOAD_FOLDER / "reports"
+    os.makedirs(report_dir, exist_ok=True)
+    report_path = report_dir / report_filename
+
 
     # 2. Build HTML Document
     html_content = f"""<!DOCTYPE html>
@@ -177,7 +199,7 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(html_content)
 
-    # 3. Store in reports table
+    # 3. Store in reports (MongoDB & SQL)
     rel_file_url = f"/uploads/reports/{report_filename}"
     content_json = {
         "scan_id": scan["id"],
@@ -185,20 +207,45 @@ def generate_scan_report(user_id: str, scan_id: str) -> dict:
         "result": scan["result"],
         "confidence": scan["confidence"]
     }
-    execute_db(
-        "INSERT INTO reports (id, user_id, scan_id, report_type, title, file_path, content_json, summary_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (
-            report_id,
-            user_id,
-            scan["id"],
-            "SCAN_REPORT",
-            report_title,
-            rel_file_url,
-            json.dumps(content_json),
-            scan["explanation"][:200],
-            datetime.now(timezone.utc).isoformat()
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    try:
+        from utils.mongo import get_reports_collection
+        rep_col = get_reports_collection()
+        if rep_col is not None:
+            rep_col.insert_one({
+                "_id": report_id,
+                "id": report_id,
+                "user_id": user_id,
+                "scan_id": scan["id"],
+                "report_type": "SCAN_REPORT",
+                "title": report_title,
+                "file_path": rel_file_url,
+                "content_json": content_json,
+                "summary_text": scan["explanation"][:200],
+                "created_at": datetime.now(timezone.utc)
+            })
+    except Exception as ex:
+        print(f"[Report Gen MongoDB save warning]: {ex}")
+
+    try:
+        execute_db(
+            "INSERT INTO reports (id, user_id, scan_id, report_type, title, file_path, content_json, summary_text, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                report_id,
+                user_id,
+                scan["id"],
+                "SCAN_REPORT",
+                report_title,
+                rel_file_url,
+                json.dumps(content_json),
+                scan["explanation"][:200],
+                now_iso
+            )
         )
-    )
+    except Exception:
+        pass
+
 
     return {
         "success": True,

@@ -15,7 +15,7 @@ def get_profile(current_user):
 
     # 1. Try MongoDB first
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             user_doc = None
@@ -89,7 +89,7 @@ def update_profile(current_user):
 
     # 1. Update in MongoDB
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             update_data = {
@@ -178,7 +178,7 @@ def handle_medical_profile(current_user):
     if request.method == "GET":
         # 1. Check MongoDB
         try:
-            from routes.auth import get_mongo_db
+            from utils.mongo import get_mongo_db
             db = get_mongo_db()
             if db is not None:
                 med_doc = db["medical_profiles"].find_one({"user_id": user_id})
@@ -219,7 +219,7 @@ def handle_medical_profile(current_user):
 
     # 1. Save in MongoDB
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             medical_data = {

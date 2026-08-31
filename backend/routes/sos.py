@@ -24,7 +24,7 @@ def create_sos(current_user):
 
     # 1. Save in MongoDB
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             res = db["sos_events"].insert_one({
@@ -69,7 +69,7 @@ def sos_history(current_user):
 
     # 1. Check MongoDB
     try:
-        from routes.auth import get_mongo_db
+        from utils.mongo import get_mongo_db
         db = get_mongo_db()
         if db is not None:
             mongo_events = list(db["sos_events"].find({"user_id": user_id}).sort("created_at", -1))

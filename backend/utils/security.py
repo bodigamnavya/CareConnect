@@ -48,9 +48,10 @@ def get_current_user():
 
     # 1. Check MongoDB first if configured
     try:
-        from routes.auth import get_users_collection
+        from utils.mongo import get_users_collection
         from bson import ObjectId
         users_col = get_users_collection()
+
         if users_col is not None:
             user_doc = None
             if user_id:
