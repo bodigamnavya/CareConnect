@@ -163,9 +163,16 @@ def login():
                 "message": "User account data is invalid"
             }), 500
 
+        if isinstance(stored_hash, str):
+            stored_hash_bytes = stored_hash.encode("utf-8")
+        elif isinstance(stored_hash, bytes):
+            stored_hash_bytes = stored_hash
+        else:
+            stored_hash_bytes = str(stored_hash).encode("utf-8")
+
         password_match = bcrypt.checkpw(
             password.encode("utf-8"),
-            stored_hash.encode("utf-8")
+            stored_hash_bytes
         )
         if not password_match:
             return jsonify({
