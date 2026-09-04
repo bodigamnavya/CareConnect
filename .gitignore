@@ -27,6 +27,7 @@ dist/
 *.sqlite3
 *.db
 backend/*.sqlite3
+backend/data/
 
 # Uploads content
 backend/uploads/*
