@@ -64,7 +64,15 @@ class LocalCollection:
     def _matches(self, doc, query):
         if not query:
             return True
+        if "$or" in query:
+            if not any(self._matches(doc, cond) for cond in query["$or"]):
+                return False
+        if "$and" in query:
+            if not all(self._matches(doc, cond) for cond in query["$and"]):
+                return False
         for k, v in query.items():
+            if k in ("$or", "$and"):
+                continue
             doc_val = doc.get(k)
             # Handle ObjectId vs string comparison
             if k in ("_id", "id"):
