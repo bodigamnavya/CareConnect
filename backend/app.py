@@ -103,6 +103,19 @@ def create_app():
     def serve_upload(filename):
         return send_from_directory(Config.UPLOAD_FOLDER, filename)
 
+    @app.route("/<path:path>")
+    def catch_all_static(path):
+        clean = path
+        while clean.startswith("frontend/"):
+            clean = clean[len("frontend/"):]
+        file_path = Path(app.static_folder) / clean
+        if file_path.exists() and file_path.is_file():
+            return send_from_directory(app.static_folder, clean)
+        html_file = Path(app.static_folder) / f"{clean}.html"
+        if html_file.exists() and html_file.is_file():
+            return send_from_directory(app.static_folder, f"{clean}.html")
+        return jsonify({"success": False, "message": "Resource not found."}), 404
+
     # Global Error Handlers (Always JSON)
     @app.errorhandler(400)
     def bad_request(e):

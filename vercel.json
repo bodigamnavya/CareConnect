@@ -18,11 +18,23 @@
       "destination": "/api/index.py"
     },
     {
+      "source": "/CSS/(.*)",
+      "destination": "/frontend/CSS/$1"
+    },
+    {
+      "source": "/JS/(.*)",
+      "destination": "/frontend/JS/$1"
+    },
+    {
       "source": "/",
       "destination": "/frontend/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/(.*\\.html)",
+      "destination": "/frontend/$1"
+    },
+    {
+      "source": "/(.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js|webp))",
       "destination": "/frontend/$1"
     }
   ]
