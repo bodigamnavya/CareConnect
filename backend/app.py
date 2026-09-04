@@ -58,6 +58,12 @@ def create_app():
     # Root & Health Endpoints
     @app.route("/")
     def index():
+        try:
+            index_path = Path(app.static_folder) / "index.html"
+            if index_path.exists():
+                return send_from_directory(app.static_folder, "index.html")
+        except Exception:
+            pass
         return jsonify({
             "service": "CareConnect",
             "version": "2.0.0",
