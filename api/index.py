@@ -14,12 +14,34 @@ for p in [str(backend_dir), str(root_dir)]:
 
 os.environ["VERCEL"] = "1"
 
+
+class VercelPathMiddleware:
+    """
+    Strips internal Vercel serverless script prefixes from WSGI PATH_INFO so Flask routes match cleanly.
+    """
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        path = environ.get("PATH_INFO", "")
+        for prefix in ["/api/index.py", "/api/index", "/backend/app.py", "/backend/app"]:
+            if path.startswith(prefix):
+                path = path[len(prefix):]
+                break
+
+        if not path:
+            path = "/"
+
+        environ["PATH_INFO"] = path
+        return self.wsgi_app(environ, start_response)
+
+
 app = None
 init_error = None
 
 try:
     from app import app as flask_app
-    app = flask_app
+    app = VercelPathMiddleware(flask_app)
 except Exception as e:
     init_error = f"{type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
     print(f"[Vercel Initialization Error]: {init_error}")

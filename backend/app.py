@@ -26,7 +26,20 @@ from routes.qr import qr_bp
 
 
 def create_app():
-    app = Flask(__name__, static_folder="../frontend", static_url_path="")
+    base = Path(__file__).resolve().parent
+    frontend_candidates = [
+        base.parent / "frontend",
+        base / "frontend",
+        Path("/var/task/frontend"),
+        Path.cwd() / "frontend"
+    ]
+    frontend_dir = str(base.parent / "frontend")
+    for cand in frontend_candidates:
+        if cand.exists() and (cand / "index.html").exists():
+            frontend_dir = str(cand)
+            break
+
+    app = Flask(__name__, static_folder=frontend_dir, static_url_path="")
     app.config.from_object(Config)
 
     # Attempt non-blocking MongoDB index setup
