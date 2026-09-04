@@ -120,6 +120,7 @@ def register():
             "error": str(error)
         }), 500
 
+
 # ============================================
 # LOGIN
 # ============================================
@@ -174,6 +175,7 @@ def login():
             password.encode("utf-8"),
             stored_hash_bytes
         )
+
         if not password_match:
             return jsonify({
                 "success": False,
@@ -223,6 +225,7 @@ def login():
             "message": "Login failed",
             "error": str(error)
         }), 500
+
 
 # ============================================
 # LOGOUT
