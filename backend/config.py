@@ -20,30 +20,54 @@ IS_VERCEL = bool(
 )
 
 
+def _safe_int(env_val, default: int) -> int:
+    """Safely converts an environment variable to int with fallback for empty string or invalid values."""
+    if env_val is None or str(env_val).strip() == "":
+        return default
+    try:
+        return int(str(env_val).strip())
+    except (ValueError, TypeError):
+        return default
+
+
+def _safe_float(env_val, default: float) -> float:
+    """Safely converts an environment variable to float with fallback for empty string or invalid values."""
+    if env_val is None or str(env_val).strip() == "":
+        return default
+    try:
+        return float(str(env_val).strip())
+    except (ValueError, TypeError):
+        return default
+
+
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "CareConnect_Super_Secret_Production_Key_2026")
-    JWT_SECRET = os.getenv("JWT_SECRET", "CareConnect_Secure_JWT_2026_Production_Key_987654")
+    SECRET_KEY = os.getenv("SECRET_KEY") or "CareConnect_Super_Secret_Production_Key_2026"
+    JWT_SECRET = os.getenv("JWT_SECRET") or "CareConnect_Secure_JWT_2026_Production_Key_987654"
     JWT_ALGORITHM = "HS256"
-    JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS", 48))
+    
+    _jwt_hours = os.getenv("JWT_EXPIRATION_HOURS")
+    JWT_EXPIRATION_HOURS = _safe_int(_jwt_hours, 48)
 
     # MongoDB Configuration (Primary & Only Persistent Database)
-    MONGO_URI = os.getenv("MONGO_URI", "")
-    MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "careconnect")
+    MONGO_URI = os.getenv("MONGO_URI") or ""
+    MONGO_DB_NAME = os.getenv("MONGO_DB_NAME") or "careconnect"
 
     # AI Configuration
-    AI_API_KEY = os.getenv("AI_API_KEY", "")
-    AI_MODEL = os.getenv("AI_MODEL", "gemini-1.5-flash")
+    AI_API_KEY = os.getenv("AI_API_KEY") or ""
+    AI_MODEL = os.getenv("AI_MODEL") or "gemini-1.5-flash"
 
     # Uploads Configuration (Ephemeral in serverless, local disk in dev)
-    if IS_VERCEL:
+    if IS_VERCEL or os.getenv("VERCEL") or not os.access(str(BASE_DIR), os.W_OK):
         UPLOAD_FOLDER = Path(tempfile.gettempdir()) / "uploads"
     else:
         UPLOAD_FOLDER = BASE_DIR / "uploads"
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
+
+    _max_content_len = os.getenv("MAX_CONTENT_LENGTH")
+    MAX_CONTENT_LENGTH = _safe_int(_max_content_len, 16 * 1024 * 1024)  # 16 MB
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "pdf"}
 
     # CORS
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "*")
+    FRONTEND_URL = os.getenv("FRONTEND_URL") or "*"
 
     # Clinical Disclaimer
     MEDICAL_DISCLAIMER = "This AI result is for preliminary informational assistance only and is not a medical diagnosis. Always consult a qualified healthcare professional for medical concerns."
