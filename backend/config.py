@@ -22,21 +22,23 @@ IS_VERCEL = bool(
 
 
 def _safe_int(value, default):
+    """Safely converts an environment variable to int with fallback for empty/invalid values."""
+    if value is None or str(value).strip() == "":
+        return default
     try:
-        if value and str(value).strip():
-            return int(value)
+        return int(str(value).strip())
     except (ValueError, TypeError):
-        pass
-    return default
+        return default
 
 
 def _safe_float(value, default):
+    """Safely converts an environment variable to float with fallback for empty/invalid values."""
+    if value is None or str(value).strip() == "":
+        return default
     try:
-        if value and str(value).strip():
-            return float(value)
+        return float(str(value).strip())
     except (ValueError, TypeError):
-        pass
-    return default
+        return default
 
 
 class Config:
@@ -77,5 +79,4 @@ try:
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 except Exception as e:
     import logging
-    logging.error(f"Config loading error: {e}")
-    raise
+    logging.error(f"Could not create upload folder: {e}")
