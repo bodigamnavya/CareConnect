@@ -9,7 +9,7 @@ if backend_dir not in sys.path:
 
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
-from config import Config, IS_VERCEL
+from config import Config, IS_VERCEL, _safe_int
 from utils.database import init_db, check_db_connection
 
 # Blueprints
@@ -126,6 +126,5 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    _port = os.getenv("PORT")
-    port = int(_port) if _port and str(_port).strip() else 5000
+    port = _safe_int(os.getenv("PORT"), 5000)
     app.run(host="0.0.0.0", port=port, debug=True)

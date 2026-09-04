@@ -1,5 +1,6 @@
 import os
 import tempfile
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -20,24 +21,22 @@ IS_VERCEL = bool(
 )
 
 
-def _safe_int(env_val, default: int) -> int:
-    """Safely converts an environment variable to int with fallback for empty string or invalid values."""
-    if env_val is None or str(env_val).strip() == "":
-        return default
+def _safe_int(value, default):
     try:
-        return int(str(env_val).strip())
+        if value and str(value).strip():
+            return int(value)
     except (ValueError, TypeError):
-        return default
+        pass
+    return default
 
 
-def _safe_float(env_val, default: float) -> float:
-    """Safely converts an environment variable to float with fallback for empty string or invalid values."""
-    if env_val is None or str(env_val).strip() == "":
-        return default
+def _safe_float(value, default):
     try:
-        return float(str(env_val).strip())
+        if value and str(value).strip():
+            return float(value)
     except (ValueError, TypeError):
-        return default
+        pass
+    return default
 
 
 class Config:
@@ -76,5 +75,7 @@ class Config:
 # Ensure upload directory exists safely
 try:
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
-except Exception:
-    pass
+except Exception as e:
+    import logging
+    logging.error(f"Config loading error: {e}")
+    raise
