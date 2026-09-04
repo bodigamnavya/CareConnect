@@ -206,7 +206,12 @@ class LocalCollection:
 class LocalDatabase:
     def __init__(self):
         self._lock = threading.Lock()
-        self.db_dir = Path(__file__).resolve().parent.parent / "data"
+        self._memory_data = {}
+        import tempfile
+        if IS_VERCEL or os.getenv("VERCEL"):
+            self.db_dir = Path(tempfile.gettempdir()) / "careconnect_data"
+        else:
+            self.db_dir = Path(__file__).resolve().parent.parent / "data"
         self.db_file = self.db_dir / "careconnect_local_db.json"
         try:
             self.db_dir.mkdir(parents=True, exist_ok=True)
@@ -219,16 +224,17 @@ class LocalDatabase:
         try:
             if self.db_file.exists():
                 content = self.db_file.read_text(encoding="utf-8")
-                return json.loads(content) if content.strip() else {}
+                return json.loads(content) if content.strip() else self._memory_data
         except Exception:
             pass
-        return {}
+        return self._memory_data
 
     def _write_data(self, data):
+        self._memory_data = data
         try:
             self.db_file.write_text(json.dumps(data, default=str, indent=2), encoding="utf-8")
-        except Exception as e:
-            print(f"[LocalDB] Write error: {e}")
+        except Exception:
+            pass
 
     def _load_collection(self, name):
         with self._lock:
